@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.biz.dataassets.mapper.PowerBiPushBatchMapper">
+
+    <select id="pageQuery" resultType="com.sinohealth.system.biz.dataassets.domain.PowerBiPushBatch">
+        select p.* from tg_assets_pb_push_batch p
+
+        where p.deleted = false
+        <if test="request.pushName != null and request.pushName != ''">
+            and p.name like concat('%', #{request.pushName} ,'%')
+        </if>
+        <if test="request.template != null and request.template != ''">
+            and p.template_name like concat('%', #{request.template} ,'%')
+        </if>
+        <if test="request.state != null and request.state != ''">
+            and p.state = #{request.state}
+        </if>
+
+        order by p.update_time desc
+    </select>
+
+</mapper>

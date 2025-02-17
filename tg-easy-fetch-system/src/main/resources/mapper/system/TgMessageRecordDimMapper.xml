@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TgMessageRecordDimMapper">
+
+
+    <select id="queryOneMessageByPushed" resultType="com.sinohealth.system.domain.TgMessageRecordDim">
+        select * from tg_message_record_dim
+        where advice_who = #{uid}
+        and pushed = 1
+        limit 1
+    </select>
+
+    <select id="queryMessageListByPushed" resultType="com.sinohealth.system.domain.TgMessageRecordDim">
+        select * from tg_message_record_dim 
+        where advice_who = #{uid}
+          and pushed = 1
+    </select>
+    <select id="queryMessageListByViewed" resultType="com.sinohealth.system.domain.TgMessageRecordDim">
+        select * from tg_message_record_dim 
+        where advice_who = #{uid}
+          and viewed = 1
+        order by apply_time desc
+    </select>
+    <select id="queryMessageCountByViewed" resultType="java.lang.Integer">
+        select count(*) from tg_message_record_dim 
+        where advice_who = #{uid}
+          and viewed = 1
+    </select>
+
+    <update id="updateMessageCountByApplicationIdAndAdviceWho">
+        update tg_message_record_dim set viewed = 2
+        where advice_who = #{uid} and application_id = #{applicationId}
+    </update>
+
+    <update id="markMsgAllRead">
+        update tg_message_record_dim set viewed = 2
+        where advice_who = #{uid} and viewed!=2
+    </update>
+
+</mapper>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TgSyncTaskMapper">
+
+    <select id="selectTaskNeed2Sync" resultType="com.sinohealth.system.dto.TgSyncTask">
+        select * from tg_sync_task_queue
+        where sync_state = 0 limit 1
+    </select>
+</mapper>

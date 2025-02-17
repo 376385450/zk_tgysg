@@ -1,0 +1,3725 @@
+GET http://localhost:80/api/item?id=99
+Accept: application/json
+
+###
+### 登录
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+> {%
+  client.global.set("token",response.body.token);
+  %}
+
+### 文件导出
+GET {{baseUrl}}/system/table/322/export
+Content-Type: application/json
+Authorization: {{token}}
+
+### 编辑API接口服务
+PUT {{baseUrl}}/system/myApiServe/edit
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "apiName": "超多字段的表",
+  "apiNameEn": "POST 提交",
+  "apiDesc": "dwd_scrianen_customer_main_data_clean_06",
+  "dataSource": "2",
+  "remark": "直接发布，自动保存",
+  "requestMethod": "post",
+  "requestPath": "http://openapi/sinohealth.com/",
+  "sqlStatement": "select * from dwd_scrianen_customer_main_data_clean_06",
+  "tableFieldId": "[]",
+  "tableId": "[]",
+  "apiBaseInfoId": "7"
+}
+
+### 新增API服务接口
+POST {{baseUrl}}/system/myApiServe/add
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "apiName": "GET测试",
+  "apiNameEn": "",
+  "dataSource": "1",
+  "remark": "前三个",
+  "requestMethod": "get",
+  "requestPath": "http://openapi/sinohealth.com/ods/nmpa/ods_nmpa_tcm_protect_drug_p_m_t",
+  "sqlStatement": "",
+  "tableFieldId": "[{'id':'8425','fieldName':'species_number'},{'id':'8426','fieldName':'drug_name'},{'id':8427,'fieldName':'notice_number'}]",
+  "tableId": "[{'tableName':'ods_nmpa_tcm_protect_drug_p_m_t','id':'491'}]"
+}
+
+### 获取API接口服务信息（仅针对未发版的草稿）
+GET {{baseUrl}}/system/myApiServe/3
+Content-Type: application/json
+Authorization: {{token}}
+
+### 发布API服务接口
+POST {{baseUrl}}/system/myApiServe/publish
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "apiBaseInfoId": 2,
+  "publishType": 2,
+  "groupId": "1",
+  "apiName": "第一个申请发布的接口",
+  "apiVersionId": "42"
+}
+
+### 分组管理 - 列表
+GET {{baseUrl}}/system/groupInfo/list?pageNum=1&pageSize=5&groupName=1
+Content-Type: application/json
+Authorization: {{token}}
+
+### 分组管理 - 详情
+GET {{baseUrl}}/system/groupInfo/1
+Content-Type: application/json
+Authorization: {{token}}
+
+### 分组管理-新增分组信息
+POST {{baseUrl}}/system/groupInfo/
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "groupName": "test4",
+  "groupDesc": "测试4"
+}
+
+### 分组管理-编辑分组信息
+PUT {{baseUrl}}/system/groupInfo/
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "id": 4,
+  "groupName": "test5",
+  "groupDesc": "测试5"
+}
+
+### 分组管理-删除分组信息
+DELETE {{baseUrl}}/system/groupInfo/5
+Content-Type: application/json
+Authorization: {{token}}
+
+### 数据地图任务列表接口 - 列表
+GET {{baseUrl}}/system/table-task/list?pageNum=1&pageSize=5
+Content-Type: application/json
+Authorization: {{token}}
+
+### 代码生成
+GET {{baseUrl}}/tool/gen/batchGenCode?tables=sys_user_api
+Authorization: {{token}}
+
+### 用户api服务管理-列表
+GET {{baseUrl}}/system/user/apiRoleList?userId=1
+Content-Type: application/json
+Authorization: {{token}}
+
+
+### 用户api服务管理-获取当前用户api权限
+GET {{baseUrl}}/system/user/getApiRole?userId=31
+Content-Type: application/json
+Authorization: {{token}}
+
+### 用户api服务管理-获取当前api分组
+GET {{baseUrl}}/system/user/getUserApiGroup
+Content-Type: application/json
+Authorization: {{token}}
+
+### 用户api服务管理-获取当前api分组
+POST {{baseUrl}}/system/user/editApiRole
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "userId": 1,
+  "userApiEditInfoVos": [
+    {
+      "apiId": 1,
+      "isManage": 1,
+      "isSubscribe": 0
+    }
+  ]
+}
+
+### 用户api服务管理-获取当前api分组
+GET {{baseUrl}}/system/dir/myTree
+Content-Type: application/json
+Authorization: {{token}}
+
+### 用户api服务管理-获取当前api分组
+POST {{baseUrl}}/system/table/editDataTreeStatus
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "id": 0,
+  "dirName": "根节点",
+  "parentId": null,
+  "datasourceId": null,
+  "isTable": false,
+  "accessType": null,
+  "sort": null,
+  "prefix": null,
+  "children": [
+    {
+      "id": 2,
+      "dirName": "数据仓库（CDM）",
+      "parentId": 0,
+      "datasourceId": 0,
+      "isTable": false,
+      "accessType": null,
+      "sort": 2,
+      "prefix": null,
+      "children": [
+        {
+          "id": 7,
+          "dirName": "中台部门（DC）",
+          "parentId": 2,
+          "datasourceId": 0,
+          "isTable": false,
+          "accessType": null,
+          "sort": 0,
+          "prefix": null,
+          "status": {
+            "status": 1
+          },
+          "children": [
+            {
+              "id": 8,
+              "dirName": "主数据（MDM）",
+              "parentId": 7,
+              "datasourceId": 0,
+              "isTable": false,
+              "accessType": null,
+              "sort": 0,
+              "prefix": "mdm_",
+              "status": {
+                "status": 1
+              },
+              "children": [
+                {
+                  "id": 9,
+                  "dirName": "产品服务库 (pd)",
+                  "parentId": 8,
+                  "datasourceId": 6,
+                  "isTable": false,
+                  "accessType": null,
+                  "status": {
+                    "status": 1
+                  },
+                  "sort": 0,
+                  "prefix": "mdm_pd_",
+                  "children": []
+                },
+                {
+                  "id": 10,
+                  "dirName": "企业机构库 (cp)",
+                  "parentId": 8,
+                  "datasourceId": 6,
+                  "isTable": false,
+                  "accessType": null,
+                  "sort": 0,
+                  "status": {
+                    "status": 1
+                  },
+                  "prefix": "mdm_cp",
+                  "children": []
+                },
+                {
+                  "id": 11,
+                  "dirName": "从业人员库 (ps)",
+                  "parentId": 8,
+                  "datasourceId": 6,
+                  "isTable": false,
+                  "accessType": null,
+                  "sort": 0,
+                  "status": {
+                    "status": 1
+                  },
+                  "prefix": "mdm_ps_",
+                  "children": []
+                },
+                {
+                  "id": 12,
+                  "dirName": "营养膳食库 (nt)",
+                  "parentId": 8,
+                  "datasourceId": 6,
+                  "isTable": false,
+                  "accessType": null,
+                  "sort": 0,
+                  "status": {
+                    "status": 1
+                  },
+                  "prefix": "mdm_nt_",
+                  "children": []
+                },
+                {
+                  "id": 13,
+                  "dirName": "病种病症库 (ds)",
+                  "parentId": 8,
+                  "datasourceId": 6,
+                  "isTable": false,
+                  "accessType": null,
+                  "sort": 0,
+                  "prefix": "mdm_ds_",
+                  "children": []
+                },
+                {
+                  "id": 14,
+                  "dirName": "检验检测库 (ts)",
+                  "parentId": 8,
+                  "datasourceId": 6,
+                  "isTable": false,
+                  "accessType": null,
+                  "sort": 0,
+                  "prefix": "mdm_ts_",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 15,
+              "dirName": "明细数据（DWD）",
+              "parentId": 7,
+              "datasourceId": 4,
+              "isTable": false,
+              "accessType": null,
+              "sort": 0,
+              "prefix": "dwd_",
+              "children": []
+            },
+            {
+              "id": 16,
+              "dirName": "汇总数据（DWS）",
+              "parentId": 7,
+              "datasourceId": 5,
+              "isTable": false,
+              "accessType": null,
+              "sort": 0,
+              "prefix": "dws_",
+              "children": []
+            },
+            {
+              "id": 17,
+              "dirName": "映射关系（MAP）",
+              "parentId": 7,
+              "datasourceId": 9,
+              "isTable": false,
+              "accessType": null,
+              "sort": 0,
+              "prefix": "map_",
+              "children": []
+            },
+            {
+              "id": 18,
+              "dirName": "通用维度（DIM）",
+              "parentId": 7,
+              "datasourceId": 3,
+              "isTable": false,
+              "accessType": null,
+              "sort": 0,
+              "prefix": "dim_",
+              "children": []
+            },
+            {
+              "id": 24,
+              "dirName": "测试数据（TEST）",
+              "parentId": 7,
+              "datasourceId": 8,
+              "isTable": false,
+              "accessType": null,
+              "sort": 0,
+              "prefix": "te",
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+
+### 获取数据目录列表
+GET {{baseUrl}}/system/table/getDataTreeList
+Content-Type: application/json
+Authorization: {{token}}
+
+### 修改数据目录状态
+POST {{baseUrl}}/system/table/editDataTreeStatus
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "id": 0,
+  "dirName": "根节点",
+  "parentId": null,
+  "datasourceId": null,
+  "isTable": false,
+  "data": null,
+  "sort": null,
+  "prefix": null,
+  "children": [
+    {
+      "id": 2,
+      "dirName": "数据仓库（CDM）",
+      "parentId": 0,
+      "datasourceId": null,
+      "isTable": false,
+      "data": {
+        "status": [
+          "1"
+        ]
+      },
+      "sort": null,
+      "prefix": null,
+      "children": [
+        {
+          "id": 7,
+          "dirName": "中台部门（DC）",
+          "parentId": 2,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": [
+            {
+              "id": 8,
+              "dirName": "主数据（MDM）",
+              "parentId": 7,
+              "datasourceId": null,
+              "isTable": false,
+              "data": {
+                "status": [
+                  "1"
+                ]
+              },
+              "sort": null,
+              "prefix": null,
+              "children": [
+                {
+                  "id": 9,
+                  "dirName": "产品服务库 (pd)",
+                  "parentId": 8,
+                  "datasourceId": null,
+                  "isTable": false,
+                  "data": {
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": [
+                    {
+                      "id": 1,
+                      "dirName": "mdm_pd_atc_type_drug_dim",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 14,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_atc_type_drug_dim",
+                          "alias": "药品分类标准表-ATC分类"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 2,
+                      "dirName": "mdm_pd_bmi_drug_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 26,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_bmi_drug_base",
+                          "alias": "基本医疗保险药品目录"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 3,
+                      "dirName": "mdm_pd_ccb_drug_list_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 19,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_ccb_drug_list_base",
+                          "alias": "国家集采招标目录"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 4,
+                      "dirName": "mdm_pd_ccpwb_drug_list_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 19,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_ccpwb_drug_list_base",
+                          "alias": "国家集采中标目录"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 5,
+                      "dirName": "mdm_pd_cfda_register_drug_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 33,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_cfda_register_drug_base",
+                          "alias": "CFDA—注册产品表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 6,
+                      "dirName": "mdm_pd_drug_barcode_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 26,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_drug_barcode_base",
+                          "alias": "条形码表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 7,
+                      "dirName": "mdm_pd_drug_cancel_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 20,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_drug_cancel_base",
+                          "alias": "注销药品表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 8,
+                      "dirName": "mdm_pd_drug_instruction_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 54,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_drug_instruction_base",
+                          "alias": "药品说明书信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 9,
+                      "dirName": "mdm_pd_drug_label_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 54,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_drug_label_base",
+                          "alias": "药品标签数据表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 10,
+                      "dirName": "mdm_pd_drug_list_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 34,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_drug_list_base",
+                          "alias": "药品目录集"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 11,
+                      "dirName": "mdm_pd_drug_name_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 26,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_drug_name_base",
+                          "alias": "药品名称基础信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 12,
+                      "dirName": "mdm_pd_drug_package_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 19,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_drug_package_base",
+                          "alias": "注册药品包装规格表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 13,
+                      "dirName": "mdm_pd_hef_apn_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 24,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_hef_apn_base",
+                          "alias": "保健食品信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 14,
+                      "dirName": "mdm_pd_hef_apn_ref",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 7,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_hef_apn_ref",
+                          "alias": "保健食品信息-产品关联表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 15,
+                      "dirName": "mdm_pd_hef_brand_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 8,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_hef_brand_base",
+                          "alias": "商标名称基础表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 16,
+                      "dirName": "mdm_pd_hef_common_alias_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 10,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_hef_common_alias_base",
+                          "alias": "保健食品通用名别名表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 17,
+                      "dirName": "mdm_pd_hef_common_name_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 8,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_hef_common_name_base",
+                          "alias": "保健食品通用名基础表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 18,
+                      "dirName": "mdm_pd_hef_instruction_ref",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 7,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_hef_instruction_ref",
+                          "alias": "保健食品产品-说明书关联表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 19,
+                      "dirName": "mdm_pd_hef_instructions_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 14,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_hef_instructions_base",
+                          "alias": "保健食品说明书信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 20,
+                      "dirName": "mdm_pd_hef_product_alias_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 10,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_hef_product_alias_base",
+                          "alias": "保健食品产品名称别名表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 21,
+                      "dirName": "mdm_pd_hef_product_name_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 10,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_hef_product_name_base",
+                          "alias": "保健食品产品名称基础表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 22,
+                      "dirName": "mdm_pd_hef_property_name_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 4,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_hef_property_name_base",
+                          "alias": "特殊保健品属性关键字表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 23,
+                      "dirName": "mdm_pd_hpdrug_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 57,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_hpdrug_base",
+                          "alias": "CFDA保健品标准表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 24,
+                      "dirName": "mdm_pd_indication_type_drug_dim",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 13,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_indication_type_drug_dim",
+                          "alias": "药品分类标准表-适应症分类"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 25,
+                      "dirName": "mdm_pd_ne_drug_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 11,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_ne_drug_base",
+                          "alias": "国家基本药物目录表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 26,
+                      "dirName": "mdm_pd_otc_drug_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 18,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_otc_drug_base",
+                          "alias": "OTC目录表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 27,
+                      "dirName": "mdm_pd_peopleclub_type_drug_dim",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 12,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_peopleclub_type_drug_dim",
+                          "alias": "药品分类标准表-人社分类"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 28,
+                      "dirName": "mdm_pd_tcm_drug_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 15,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_tcm_drug_base",
+                          "alias": "中药材基础信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 29,
+                      "dirName": "mdm_pd_tcm_protect_drug_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 20,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_tcm_protect_drug_base",
+                          "alias": "中药保护品种表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 30,
+                      "dirName": "mdm_pd_tcmp_drug_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 18,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_tcmp_drug_base",
+                          "alias": "中药饮片基础信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 134,
+                      "dirName": "mdm_pd_drug_infro",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 50,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_drug_infro",
+                          "alias": "药品业务信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 135,
+                      "dirName": "mdm_pd_function_ref",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 9,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_function_ref",
+                          "alias": "mdm_pd_function_ref"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 136,
+                      "dirName": "mdm_pd_specification_base",
+                      "parentId": 9,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 13,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_pd_specification_base",
+                          "alias": "mdm_pd_specification_base"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 10,
+                  "dirName": "企业机构库 (cp)",
+                  "parentId": 8,
+                  "datasourceId": null,
+                  "isTable": false,
+                  "data": {
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": [
+                    {
+                      "id": 31,
+                      "dirName": "mdm_cp_cpy_base",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 39,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_cpy_base",
+                          "alias": "mdm_cp_cpy_base"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 32,
+                      "dirName": "mdm_cp_dep_base",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 15,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_dep_base",
+                          "alias": "科室基础信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 33,
+                      "dirName": "mdm_cp_dep_type_dim",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 3,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_dep_type_dim",
+                          "alias": "科室分类标准表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 34,
+                      "dirName": "mdm_cp_grp_base",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 13,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_grp_base",
+                          "alias": "集团基础信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 35,
+                      "dirName": "mdm_cp_hin_base",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 36,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_hin_base",
+                          "alias": "卫生机构基础信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 37,
+                      "dirName": "mdm_cp_hin_base_his",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 35,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_hin_base_his",
+                          "alias": "卫生机构基础信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 38,
+                      "dirName": "mdm_cp_hin_type_dim",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 6,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_hin_type_dim",
+                          "alias": "卫生机构分类标准表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 39,
+                      "dirName": "mdm_cp_hin_type_dim_delete",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 14,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_hin_type_dim_delete",
+                          "alias": "卫生机构分类标准表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 40,
+                      "dirName": "mdm_cp_hin_type_dim_his",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 14,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_hin_type_dim_his",
+                          "alias": "卫生机构分类标准表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 41,
+                      "dirName": "mdm_cp_hos_base",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 21,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_hos_base",
+                          "alias": "医院基础信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 42,
+                      "dirName": "mdm_cp_offline_store_base",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 22,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_offline_store_base",
+                          "alias": "mdm_cp_offline_store_base"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 139,
+                      "dirName": "mdm_cp_cpy_grp_name_base",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 10,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_cpy_grp_name_base",
+                          "alias": "企业集团名称信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 140,
+                      "dirName": "mdm_cp_cpy_status_base",
+                      "parentId": 10,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 11,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_cp_cpy_status_base",
+                          "alias": "企业经营状态信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 11,
+                  "dirName": "从业人员库 (ps)",
+                  "parentId": 8,
+                  "datasourceId": null,
+                  "isTable": false,
+                  "data": {
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": [
+                    {
+                      "id": 44,
+                      "dirName": "mdm_ps_doc_base",
+                      "parentId": 11,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 23,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ps_doc_base",
+                          "alias": "医生信息表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 45,
+                      "dirName": "mdm_ps_doc_base_bak",
+                      "parentId": 11,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 7,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ps_doc_base_bak",
+                          "alias": "mdm_ps_doc_base_bak"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 46,
+                      "dirName": "mdm_ps_pqcfd_base",
+                      "parentId": 11,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 18,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ps_pqcfd_base",
+                          "alias": "mdm_ps_pqcfd_base"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 47,
+                      "dirName": "mdm_ps_pqcfd_base_bak",
+                      "parentId": 11,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 15,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ps_pqcfd_base_bak",
+                          "alias": "mdm_ps_pqcfd_base_bak"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 12,
+                  "dirName": "营养膳食库 (nt)",
+                  "parentId": 8,
+                  "datasourceId": null,
+                  "isTable": false,
+                  "data": {
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 13,
+                  "dirName": "病种病症库 (ds)",
+                  "parentId": 8,
+                  "datasourceId": null,
+                  "isTable": false,
+                  "data": {
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": [
+                    {
+                      "id": 48,
+                      "dirName": "mdm_ds_chinese_disease_dim",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 10,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_chinese_disease_dim",
+                          "alias": "中医疾病分类与代码"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 49,
+                      "dirName": "mdm_ds_chinese_symptom_dim",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 11,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_chinese_symptom_dim",
+                          "alias": "中医证候分类与代码"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 50,
+                      "dirName": "mdm_ds_common_clinic_disease_dim",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 7,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_common_clinic_disease_dim",
+                          "alias": "常用临床医学名词（疾病）"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 51,
+                      "dirName": "mdm_ds_common_clinic_symptom_dim",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 7,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_common_clinic_symptom_dim",
+                          "alias": "常用临床医学名词（症状）"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 52,
+                      "dirName": "mdm_ds_dip_ref",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 9,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_dip_ref",
+                          "alias": "DIP目录库1.0"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 53,
+                      "dirName": "mdm_ds_disease_alias_base",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 9,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_disease_alias_base",
+                          "alias": "疾病别名表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 54,
+                      "dirName": "mdm_ds_disease_syndrome_base",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 8,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_disease_syndrome_base",
+                          "alias": "中/西医病证主表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 55,
+                      "dirName": "mdm_ds_healthcare_icd10_dim",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 8,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_healthcare_icd10_dim",
+                          "alias": "疾病分类与代码ICD-10医保版"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 56,
+                      "dirName": "mdm_ds_healthcare_icd10_v2_dim",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 10,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_healthcare_icd10_v2_dim",
+                          "alias": "国家医疗保障局公布的疾病分类与代码ICD-10医保版2.0"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 57,
+                      "dirName": "mdm_ds_icd11_dim",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 8,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_icd11_dim",
+                          "alias": "国际疾病分类第十一次修订本（ICD-11）中文版"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 58,
+                      "dirName": "mdm_ds_inspect_test_dim",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 23,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_inspect_test_dim",
+                          "alias": "检验检测表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 59,
+                      "dirName": "mdm_ds_inspect_test_dim_his",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 23,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_inspect_test_dim_his",
+                          "alias": "检验检测表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 60,
+                      "dirName": "mdm_ds_national_clinic_v2_dim",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 8,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_national_clinic_v2_dim",
+                          "alias": "疾病分类与代码国家临床版2.0"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 61,
+                      "dirName": "mdm_ds_symptom_alias_base",
+                      "parentId": 13,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 10,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ds_symptom_alias_base",
+                          "alias": "症状同义词表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": 14,
+                  "dirName": "检验检测库 (ts)",
+                  "parentId": 8,
+                  "datasourceId": null,
+                  "isTable": false,
+                  "data": {
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": [
+                    {
+                      "id": 62,
+                      "dirName": "mdm_ts_gd_medical_service_project_dim",
+                      "parentId": 14,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 13,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ts_gd_medical_service_project_dim",
+                          "alias": "广东省医疗服务价格数据"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 63,
+                      "dirName": "mdm_ts_healthcare_medical_service_project_dim",
+                      "parentId": 14,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 12,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ts_healthcare_medical_service_project_dim",
+                          "alias": "mdm_ts_healthcare_medical_service_project_dim"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 64,
+                      "dirName": "mdm_ts_inspect_test_dim",
+                      "parentId": 14,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 13,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ts_inspect_test_dim",
+                          "alias": "检验检查项目表"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 65,
+                      "dirName": "mdm_ts_national_exam_project_dim",
+                      "parentId": 14,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 7,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ts_national_exam_project_dim",
+                          "alias": "\t国家机构临床检验项目（2013版）"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    },
+                    {
+                      "id": 66,
+                      "dirName": "mdm_ts_national_medical_service_project_dim",
+                      "parentId": 14,
+                      "datasourceId": null,
+                      "isTable": true,
+                      "data": {
+                        "enableCount": 10,
+                        "disableCount": 0,
+                        "tableInfo": {
+                          "name": "mdm_ts_national_medical_service_project_dim",
+                          "alias": "全国医疗服务价格项目规范（2012年版）"
+                        },
+                        "status": [
+                          "1"
+                        ]
+                      },
+                      "sort": null,
+                      "prefix": null,
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 15,
+              "dirName": "明细数据（DWD）",
+              "parentId": 7,
+              "datasourceId": null,
+              "isTable": false,
+              "data": {
+                "status": [
+                  "1"
+                ]
+              },
+              "sort": null,
+              "prefix": null,
+              "children": [
+                {
+                  "id": 67,
+                  "dirName": "dwd_buss_insure_dockor_base",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 34,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_buss_insure_dockor_base",
+                      "alias": "dwd_buss_insure_dockor_base"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 68,
+                  "dirName": "dwd_dsc_data_qcc_organization_m_t",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 39,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_dsc_data_qcc_organization_m_t",
+                      "alias": "dwd_dsc_data_qcc_organization_m_t"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 69,
+                  "dirName": "dwd_fic_fic_intelligence_item_m_t",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 40,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_fic_fic_intelligence_item_m_t",
+                      "alias": "商品基础数据"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 70,
+                  "dirName": "dwd_fic_fic_sales_item_m_t",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 10,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_fic_fic_sales_item_m_t",
+                      "alias": "给dsc做销量数据匹配"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 71,
+                  "dirName": "dwd_health_organization_m_t",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 18,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_health_organization_m_t",
+                      "alias": "卫生机构基础信息表"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 72,
+                  "dirName": "dwd_screen_mark",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark",
+                      "alias": "dwd_screen_mark"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 73,
+                  "dirName": "dwd_screen_mark1",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark1",
+                      "alias": "dwd_screen_mark1"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 74,
+                  "dirName": "dwd_screen_mark1_temp",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark1_temp",
+                      "alias": "dwd_screen_mark1_temp"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 75,
+                  "dirName": "dwd_screen_mark2",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark2",
+                      "alias": "dwd_screen_mark2"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 76,
+                  "dirName": "dwd_screen_mark2_temp",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark2_temp",
+                      "alias": "dwd_screen_mark2_temp"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 77,
+                  "dirName": "dwd_screen_mark3_1",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark3_1",
+                      "alias": "dwd_screen_mark3_1"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 78,
+                  "dirName": "dwd_screen_mark3_1_temp",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark3_1_temp",
+                      "alias": "dwd_screen_mark3_1_temp"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 79,
+                  "dirName": "dwd_screen_mark4_1",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark4_1",
+                      "alias": "dwd_screen_mark4_1"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 80,
+                  "dirName": "dwd_screen_mark4_1_temp",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark4_1_temp",
+                      "alias": "dwd_screen_mark4_1_temp"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 81,
+                  "dirName": "dwd_screen_mark_empty",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark_empty",
+                      "alias": "dwd_screen_mark_empty"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 82,
+                  "dirName": "dwd_screen_mark_empty_result",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark_empty_result",
+                      "alias": "dwd_screen_mark_empty_result"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 83,
+                  "dirName": "dwd_screen_mark_huizong",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark_huizong",
+                      "alias": "dwd_screen_mark_huizong"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 84,
+                  "dirName": "dwd_screen_mark_not_empty",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark_not_empty",
+                      "alias": "dwd_screen_mark_not_empty"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 85,
+                  "dirName": "dwd_screen_mark_result",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 65,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_mark_result",
+                      "alias": "dwd_screen_mark_result"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 86,
+                  "dirName": "dwd_screen_match",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 66,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_match",
+                      "alias": "dwd_screen_match"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 87,
+                  "dirName": "dwd_screen_match_result",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 66,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_match_result",
+                      "alias": "dwd_screen_match_result"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 88,
+                  "dirName": "dwd_screen_source",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 47,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source",
+                      "alias": "dwd_screen_source"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 89,
+                  "dirName": "dwd_screen_source_0",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 47,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_0",
+                      "alias": "dwd_screen_source_0"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 90,
+                  "dirName": "dwd_screen_source_0_bak",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 47,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_0_bak",
+                      "alias": "dwd_screen_source_0_bak"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 91,
+                  "dirName": "dwd_screen_source_0_result_1_1_1_2",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 48,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_0_result_1_1_1_2",
+                      "alias": "dwd_screen_source_0_result_1_1_1_2"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 92,
+                  "dirName": "dwd_screen_source_1",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 47,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_1",
+                      "alias": "dwd_screen_source_1"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 93,
+                  "dirName": "dwd_screen_source_1_3_result",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 49,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_1_3_result",
+                      "alias": "dwd_screen_source_1_3_result"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 94,
+                  "dirName": "dwd_screen_source_1_4",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 50,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_1_4",
+                      "alias": "dwd_screen_source_1_4"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 95,
+                  "dirName": "dwd_screen_source_1_4_result",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 50,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_1_4_result",
+                      "alias": "dwd_screen_source_1_4_result"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 96,
+                  "dirName": "dwd_screen_source_greater_1",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 47,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_greater_1",
+                      "alias": "dwd_screen_source_greater_1"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 97,
+                  "dirName": "dwd_screen_source_greater_11",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 47,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_greater_11",
+                      "alias": "dwd_screen_source_greater_11"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 98,
+                  "dirName": "dwd_screen_source_greater_11_mark",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 47,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_greater_11_mark",
+                      "alias": "dwd_screen_source_greater_11_mark"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 99,
+                  "dirName": "dwd_screen_source_greater_1_result_1_1",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 48,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_greater_1_result_1_1",
+                      "alias": "dwd_screen_source_greater_1_result_1_1"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 100,
+                  "dirName": "dwd_screen_source_result_1_3",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 48,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_screen_source_result_1_3",
+                      "alias": "dwd_screen_source_result_1_3"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 101,
+                  "dirName": "dwd_scrianen_customer_main_data_to",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 34,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_scrianen_customer_main_data_to",
+                      "alias": "dwd_scrianen_customer_main_data_to"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 102,
+                  "dirName": "dwd_scrianen_customer_main_data_to_stard",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 31,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_scrianen_customer_main_data_to_stard",
+                      "alias": "dwd_scrianen_customer_main_data_to_stard"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 103,
+                  "dirName": "dwd_scrianen_customer_main_data_to_stard_super",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 31,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_scrianen_customer_main_data_to_stard_super",
+                      "alias": "dwd_scrianen_customer_main_data_to_stard_super"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 104,
+                  "dirName": "dwd_scrianen_customer_main_data_to_stard_test",
+                  "parentId": 15,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 31,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dwd_scrianen_customer_main_data_to_stard_test",
+                      "alias": "dwd_scrianen_customer_main_data_to_stard_test"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 16,
+              "dirName": "汇总数据（DWS）",
+              "parentId": 7,
+              "datasourceId": null,
+              "isTable": false,
+              "data": {
+                "status": [
+                  "1"
+                ]
+              },
+              "sort": null,
+              "prefix": null,
+              "children": []
+            },
+            {
+              "id": 17,
+              "dirName": "映射关系（MAP）",
+              "parentId": 7,
+              "datasourceId": null,
+              "isTable": false,
+              "data": {
+                "status": [
+                  "1"
+                ]
+              },
+              "sort": null,
+              "prefix": null,
+              "children": []
+            },
+            {
+              "id": 18,
+              "dirName": "通用维度（DIM）",
+              "parentId": 7,
+              "datasourceId": null,
+              "isTable": false,
+              "data": {
+                "status": [
+                  "1"
+                ]
+              },
+              "sort": null,
+              "prefix": null,
+              "children": [
+                {
+                  "id": 105,
+                  "dirName": "dim_china_region_code",
+                  "parentId": 18,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 4,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dim_china_region_code",
+                      "alias": "dim_china_region_code"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 106,
+                  "dirName": "dim_china_region_code_cnt1",
+                  "parentId": 18,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 2,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dim_china_region_code_cnt1",
+                      "alias": "dim_china_region_code_cnt1"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 107,
+                  "dirName": "dim_china_region_code_cnt2",
+                  "parentId": 18,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 2,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dim_china_region_code_cnt2",
+                      "alias": "dim_china_region_code_cnt2"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 108,
+                  "dirName": "dim_china_region_code_district_1",
+                  "parentId": 18,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 4,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dim_china_region_code_district_1",
+                      "alias": "dim_china_region_code_district_1"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 109,
+                  "dirName": "dim_china_region_code_key_word_1",
+                  "parentId": 18,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 4,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dim_china_region_code_key_word_1",
+                      "alias": "dim_china_region_code_key_word_1"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 110,
+                  "dirName": "dim_dsc_data_dsc_user_city",
+                  "parentId": 18,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 6,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dim_dsc_data_dsc_user_city",
+                      "alias": "dim_dsc_data_dsc_user_city"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 111,
+                  "dirName": "dim_dsc_data_sys_dict",
+                  "parentId": 18,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 13,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dim_dsc_data_sys_dict",
+                      "alias": "字典表"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 112,
+                  "dirName": "dim_fic_fic_intelligence_alias_m_t",
+                  "parentId": 18,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 10,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dim_fic_fic_intelligence_alias_m_t",
+                      "alias": "通过别名搜标准名"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 113,
+                  "dirName": "dim_sys_dict",
+                  "parentId": 18,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 12,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "dim_sys_dict",
+                      "alias": "dim_sys_dict"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": 24,
+              "dirName": "测试数据（TEST）",
+              "parentId": 7,
+              "datasourceId": null,
+              "isTable": false,
+              "data": {
+                "status": [
+                  "1"
+                ]
+              },
+              "sort": null,
+              "prefix": null,
+              "children": [
+                {
+                  "id": 126,
+                  "dirName": "teacher",
+                  "parentId": 24,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 2,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "teacher",
+                      "alias": "teacher"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 127,
+                  "dirName": "temp_indications_data",
+                  "parentId": 24,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 3,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "temp_indications_data",
+                      "alias": "temp_indications_data"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 128,
+                  "dirName": "temp_lzl_disease1",
+                  "parentId": 24,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 6,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "temp_lzl_disease1",
+                      "alias": "temp_lzl_disease1"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 129,
+                  "dirName": "temp_lzl_symptom",
+                  "parentId": 24,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 4,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "temp_lzl_symptom",
+                      "alias": "temp_lzl_symptom"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 130,
+                  "dirName": "test",
+                  "parentId": 24,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 4,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "test",
+                      "alias": "test"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 131,
+                  "dirName": "test0000111",
+                  "parentId": 24,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 1,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "test0000111",
+                      "alias": "test0000111"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 132,
+                  "dirName": "test_gjzwfw_med_ins_m_t_clean",
+                  "parentId": 24,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 12,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "test_gjzwfw_med_ins_m_t_clean",
+                      "alias": "test_gjzwfw_med_ins_m_t_clean"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 133,
+                  "dirName": "test_prif_add",
+                  "parentId": 24,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 3,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "test_prif_add",
+                      "alias": "test_prif_add中文名称"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 154,
+                  "dirName": "test_bjx01",
+                  "parentId": 24,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 1,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "test_bjx01",
+                      "alias": "test_bjx01"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 434,
+                  "dirName": "tetetest_prif_add10",
+                  "parentId": 24,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 3,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "tetetest_prif_add10",
+                      "alias": "tetest_prif_add10"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                },
+                {
+                  "id": 437,
+                  "dirName": "tetest_bjx97",
+                  "parentId": 24,
+                  "datasourceId": null,
+                  "isTable": true,
+                  "data": {
+                    "enableCount": 1,
+                    "disableCount": 0,
+                    "tableInfo": {
+                      "name": "tetest_bjx97",
+                      "alias": "test_bjx97"
+                    },
+                    "status": [
+                      "1"
+                    ]
+                  },
+                  "sort": null,
+                  "prefix": null,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "dirName": "创新药部门（CXY）",
+          "parentId": 2,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 20,
+          "dirName": "商保部门（SHB）",
+          "parentId": 2,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        }
+      ]
+    }
+  ]
+}
+
+
+### 根据tableId获取表字段信息
+GET {{baseUrl}}/system/table/getDataTreeByTableId?tableId=27
+Content-Type: application/json
+Authorization: {{token}}
+
+
+### 修改数据目录表字段状态
+POST {{baseUrl}}/system/table/editDataFieldStatus
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "id": 0,
+  "dirName": "根节点",
+  "parentId": null,
+  "datasourceId": null,
+  "isTable": false,
+  "data": null,
+  "sort": null,
+  "prefix": null,
+  "children": [
+    {
+      "id": 27,
+      "dirName": "药品分类标准表-人社分类",
+      "parentId": 0,
+      "datasourceId": null,
+      "isTable": true,
+      "data": {
+        "fieldAlias": "药品分类标准表-人社分类",
+        "fieldName": "mdm_pd_peopleclub_type_drug_dim"
+      },
+      "sort": null,
+      "prefix": null,
+      "children": [
+        {
+          "id": 545,
+          "dirName": "id",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "编号",
+            "fieldName": "id",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 546,
+          "dirName": "parent_id",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "父级编号",
+            "fieldName": "parent_id",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 547,
+          "dirName": "parent_ids",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "所有父级编号",
+            "fieldName": "parent_ids",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 548,
+          "dirName": "name",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "名称",
+            "fieldName": "name",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 549,
+          "dirName": "sort",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "排序",
+            "fieldName": "sort",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 550,
+          "dirName": "people_club_code",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "人社编码",
+            "fieldName": "people_club_code",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 551,
+          "dirName": "create_by",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "创建人",
+            "fieldName": "create_by",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 552,
+          "dirName": "update_by",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "更新人",
+            "fieldName": "update_by",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 553,
+          "dirName": "create_date",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "创建时间",
+            "fieldName": "create_date",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 554,
+          "dirName": "update_date",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "更新时间",
+            "fieldName": "update_date",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 555,
+          "dirName": "remarks",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "备注",
+            "fieldName": "remarks",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        },
+        {
+          "id": 556,
+          "dirName": "del_flag",
+          "parentId": 27,
+          "datasourceId": null,
+          "isTable": false,
+          "data": {
+            "fieldAlias": "删除标记",
+            "fieldName": "del_flag",
+            "status": [
+              "1"
+            ]
+          },
+          "sort": null,
+          "prefix": null,
+          "children": []
+        }
+      ]
+    }
+  ]
+}
+
+###
+GET {{baseUrl}}/system/myApiServe/listPublishedV1Api
+Content-Type: application/json
+Authorization: {{token}}
+
+
+################################# 审批 #################################
+### 审批列表
+GET {{baseUrl}}/system/apply/approvalList?pageNum=1&pageSize=50&waitingAduit=0&status=1
+Content-Type: application/json
+Authorization: {{token}}
+
+### 审批详情
+GET {{baseUrl}}/system/apply/approvalDetail/83
+Content-Type: application/json
+Authorization: {{token}}
+
+### 审批
+POST {{baseUrl}}/system/apply/editApproval
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "id": 83,
+  "status": 1,
+  "comment": "审批通过"
+}
+
+### 提交申请
+POST {{baseUrl}}/system/apply/submitApply
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "applyReason": "提交接口订阅申请",
+  "applyType": 2,
+  "apiSubscribeInfoApplyVoList": [
+    {
+      "id": 35,
+      "apiVersionId": "53"
+    }
+  ]
+}
+
+/*{
+  "applyReason": "提交接口发布申请",
+  "applyType": 3,
+  "apiInfoVersionApplyVoList": [
+    {
+      "id": 53,
+      "tableId": "[{\"tableName\":\"ods_wjw_national_exam_project_dim\",\"id\":\"118\"}]"
+    }
+  ]
+}*/
+
+
+################################# 服务看板/预警 #################################
+### API调用服务/发布服务/订阅服务每天次数统计
+GET {{baseUrl}}/system/apiStatistics/getApiInvokeAndReleaseAndSubscribeTodayStatistics
+Content-Type: application/json
+Authorization: {{token}}
+
+### API调用服务/订阅服务排行统计
+GET {{baseUrl}}/system/apiStatistics/getApiInvokeAndSubscribeRankingStatistics
+Content-Type: application/json
+Authorization: {{token}}
+
+### API调用服务/发布服务/订阅服务统计
+GET {{baseUrl}}/system/apiStatistics/getApiInvokeAndReleaseAndSubscribeStatistics
+Content-Type: application/json
+Authorization: {{token}}
+
+### API服务调用失败率排行榜统计
+GET {{baseUrl}}/system/apiStatistics/getApiInvokeFailRankingStatistics
+Content-Type: application/json
+Authorization: {{token}}
+
+### API服务调用失败率统计
+GET {{baseUrl}}/system/apiStatistics/getApiInvokeFailStatistics
+Content-Type: application/json
+Authorization: {{token}}
+
+### 获取接口变更信息
+GET {{baseUrl}}/system/myApiServe/getInterfaceChangeInfo
+Content-Type: application/json
+Authorization: {{token}}
+
+###服务监控-监控列表-服务记录
+GET {{baseUrl}}/system/apiMonitor/getServiceLog
+Content-Type: application/json
+Authorization: {{token}}
+
+###服务监控-监控列表-接口统计
+GET {{baseUrl}}/system/apiMonitor/getApiStatistics?orderFieldList[0].column=invokeSuccessRate&orderFieldList[0].asc=false&status=0
+Content-Type: application/json
+Authorization: {{token}}
+
+###服务监控-监控列表-接口统计
+GET {{baseUrl}}/system/apiMonitor/getApiUserSubscribeStatistics
+Content-Type: application/json
+Authorization: {{token}}
+
+###服务监控-监控列表-获取自定义组
+GET {{baseUrl}}/system/apiMonitor/getApiGroup
+Content-Type: application/json
+Authorization: {{token}}
+
+###服务监控-监控列表-获取用户组
+GET {{baseUrl}}/system/apiMonitor/getUserGroup
+Content-Type: application/json
+Authorization: {{token}}
+
+######################### 服务监控 限流 #########################
+###服务监控-限流列表
+GET {{baseUrl}}/system/apiMonitor/getLimitingList
+Content-Type: application/json
+Authorization: {{token}}
+
+###服务监控-限流列表-获取修改限流规则信息
+GET {{baseUrl}}/system/apiMonitor/getLimitingApiList?limitingId=1
+Content-Type: application/json
+Authorization: {{token}}
+
+###服务监控-限流列表-获取API弹框树型菜单
+GET {{baseUrl}}/system/apiMonitor/getApiList
+Content-Type: application/json
+Authorization: {{token}}
+
+
+###服务监控-限流列表-获取选中树型菜单回调获取api接口信息
+POST {{baseUrl}}/system/apiMonitor/getApiLimitingList
+Content-Type: application/json
+Authorization: {{token}}
+
+[
+  44
+]
+
+###服务监控-限流列表-限流状态修改
+POST {{baseUrl}}/system/apiMonitor/editLimitingStatus
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "status": 1,
+  "limitingIds": [
+    1,
+    2
+  ]
+}
+
+###服务监控-限流列表-限流规则编辑添加
+POST {{baseUrl}}/system/apiMonitor/editLimiting
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "id": 1,
+  "status": 1,
+  "ruleName": "",
+  "ruleType": "",
+  "ruleDescription": "",
+  "ruleDetails": "",
+  "limitRule": "",
+  "limitFrequency": "",
+  "limitIpRule": "",
+  "apiIds": []
+}
+
+###########################平台首页###########################
+### 获取首页用户信息
+GET {{baseUrl}}/system/home/getUserInfo
+Content-Type: application/json
+Authorization: {{token}}
+
+### 获取首页信息
+GET {{baseUrl}}/system/home/getHomeInfo
+Content-Type: application/json
+Authorization: {{token}}
+
+###
+POST {{baseUrl}}/system/servePool/list
+Content-Type: application/json
+Authorization: {{token}}
+
+{}
+
+###

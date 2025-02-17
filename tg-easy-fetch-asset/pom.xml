@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>tg-easy-fetch</artifactId>
+        <groupId>com.sinohealth</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <artifactId>tg-easy-fetch-asset</artifactId>
+    <version>1.0.0</version>
+    <name>tg-easy-fetch-asset</name>
+    <description>tg-easy-fetch-asset 资产门户 web 入口逻辑</description>
+    <properties>
+        <java.version>8</java.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- spring-boot-devtools -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional> <!-- 表示依赖不会传递 -->
+        </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.6.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- swagger2-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+        </dependency>
+
+        <!--防止进入swagger页面报类型转换错误，排除2.9.2中的引用，手动增加1.5.21版本-->
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>1.5.22</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-models</artifactId>
+            <version>1.5.22</version>
+        </dependency>
+
+        <!-- swagger2-UI-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+        </dependency>
+
+        <!-- JDBC 驱动包 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <version>0.6.0</version>
+            <classifier>all</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.20</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <!-- 定时任务模块 -->
+        <dependency>
+            <groupId>com.sinohealth</groupId>
+            <artifactId>tg-easy-fetch-quartz</artifactId>
+        </dependency>
+
+        <!-- 代码生成-->
+        <!--        <dependency>-->
+        <!--            <groupId>com.sinohealth</groupId>-->
+        <!--            <artifactId>tg-easy-fetch-generator</artifactId>-->
+        <!--        </dependency>-->
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <!--在引用时请在maven中央仓库搜索最新版本号-->
+            <version>2.0.4</version>
+        </dependency>
+
+        <!-- ipass sdk包-->
+        <dependency>
+            <groupId>com.sinohealth.sinoipaas</groupId>
+            <artifactId>main-data-sdk</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sinohealth.sinoipaas</groupId>
+            <artifactId>main-dept-client</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-openfeign-core</artifactId>
+            <version>2.2.6.RELEASE</version>
+        </dependency>
+
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-starter-websocket</artifactId>-->
+        <!--        </dependency>-->
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework</groupId>-->
+        <!--            <artifactId>spring-websocket</artifactId>-->
+        <!--            <version>5.2.12.RELEASE</version>-->
+        <!--        </dependency>-->
+        <dependency>
+            <groupId>com.sinohealth</groupId>
+            <artifactId>tg-easy-fetch-api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sinohealth</groupId>
+            <artifactId>tg-easy-fetch-system</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>servo-core</artifactId>
+                    <groupId>com.netflix.servo</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.sinohealth</groupId>
+            <artifactId>tg-easy-fetch-common</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>lettuce-core</artifactId>
+                    <groupId>io.lettuce</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+        </plugins>
+        <finalName>${project.artifactId}</finalName>
+    </build>
+
+</project>

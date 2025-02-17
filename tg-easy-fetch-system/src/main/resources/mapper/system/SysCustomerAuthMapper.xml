@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.SysCustomerAuthMapper">
+
+    <select id="getList" resultType="com.sinohealth.system.dto.TgCustomerApplyAuthDto">
+        SELECT
+        a.*,
+        a.update_by as 'updateId',
+--         b.out_table_name AS 'outTableName',
+        c.full_name,
+        c.abbreviation_name AS 'customer',
+        d.real_name AS 'updateBy'
+        FROM
+        tg_customer_apply_auth a
+        LEFT JOIN tg_user_data_assets b ON a.assets_id = b.id
+        LEFT JOIN sys_customer c ON a.user_id = c.user_id
+        LEFT JOIN sys_user d ON a.update_by = d.user_id
+        <where>
+            <if test="assetsId !=null">
+                and a.assets_id = #{assetsId}
+            </if>
+            <if test="userId !=null">
+                and a.user_id = #{userId}
+            </if>
+        </where>
+
+    </select>
+
+    <update id="updateByBatchIds">
+        delete from tg_customer_apply_auth WHERE
+        id in
+        <foreach item='item' index='index' collection='ids' open='(' separator=',' close=')'>
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="getCountByUserId" resultType="int">
+        SELECT COUNT(*) FROM tg_customer_apply_auth WHERE user_id = #{userId}
+        <if test="excludeIcon != null and excludeIcon != ''">and icon != #{excludeIcon}</if>
+        AND status = 1
+    </select>
+
+    <select id="getListForApply" resultType="com.sinohealth.system.dto.TgCustomerApplyAuthDto">
+
+        SELECT
+--             b.out_table_name,
+               b.project_name,b.base_table_id,ti.table_name,c.full_name, c.abbreviation_name as
+        customer, a.*, a.update_by as 'updateId'
+        FROM
+        tg_customer_apply_auth a
+        left JOIN tg_user_data_assets b ON a.assets_id = b.id
+        LEFT JOIN table_info ti ON b.base_table_id = ti.id
+        LEFT JOIN sys_customer c ON c.user_id = a.user_id
+        LEFT JOIN sys_user su ON su.user_id = c.user_id
+        <where>
+            <if test="projectName !=null and  projectName !='' ">
+                and (
+                    -- TODO 表名问题
+--                 b.out_table_name like CONCAT('%', #{projectName}, '%')
+                b.project_name like CONCAT('%', #{projectName}, '%')
+                or ti.table_name like CONCAT('%', #{projectName}, '%')
+                or su.real_name like CONCAT('%', #{projectName}, '%')
+                )
+            </if>
+            <if test="userId !=null  ">
+                and a.update_by = #{userId}
+            </if>
+            <if test="status !=null  ">
+                and a.status = #{status}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getAlreadyApplyList" resultType="com.sinohealth.system.domain.TgCustomerApplyAuth">
+        select * from tg_customer_apply_auth
+        <where>
+            <foreach collection="query.items" item="it" open="case icon " separator=" " close=" end">
+                when #{it.icon} then node_id in
+                <foreach collection="it.nodeIds" open="(" separator="," close=")" item="item">#{item}</foreach>
+            </foreach>
+            <if test="userId != null">and user_id != #{userId}</if>
+        </where>
+    </select>
+
+    <select id="queryForTree" resultType="com.sinohealth.system.domain.TgCustomerApplyAuth">
+    SELECT * FROM tg_customer_apply_auth au
+            LEFT JOIN tg_table_application_mapping_info i ON au.assets_id = i.assets_id
+            WHERE au.user_id = #{userId}
+            AND au.`status` = #{status}
+            AND (i.id IS NOT NULL OR au.icon IN ('pack', 'dashboard', 'chart'))
+     <if test="searchKey!=null and searchKey!=''">
+         AND au.node_name like concat('%', #{searchKey} ,'%')
+     </if>
+    </select>
+
+    <select id="getListV2" resultType="com.sinohealth.system.dto.TgCustomerApplyAuthDto">
+        SELECT
+        a.*,
+        a.update_by as 'updateId',
+        a.node_name as 'projectName',
+--         b.out_table_name AS 'outTableName',
+        c.full_name,
+        c.abbreviation_name AS 'customer',
+        d.real_name AS 'updateBy'
+        FROM tg_customer_apply_auth a
+        inner join data_dir dir on a.icon = dir.icon and a.node_id = dir.node_id
+        LEFT JOIN tg_user_data_assets b ON a.assets_id = b.id
+        LEFT JOIN sys_customer c ON a.user_id = c.user_id
+        LEFT JOIN sys_user d ON a.update_by = d.user_id
+        <where>
+            and a.icon != 'pack'
+            <if test="dataDirIds != null and dataDirIds.size() != 0">
+                and dir.id in
+                <foreach collection="dataDirIds" item="item" open="(" separator="," close=")">#{item}</foreach>
+            </if>
+            <if test="userId !=null">and a.user_id = #{userId}</if>
+        </where>
+    </select>
+
+    <select id="listAuth" resultType="com.sinohealth.system.dto.CustomerApplyDTO">
+        select a.id,a.auth_type,dir.icon,a.status,dir.dir_name as projectName,dir.node_id,a.user_id,
+        case dir.icon when 'form' then dir.node_id when 'chart' then analysis.assets_id when 'dashboard' then
+        analysis.assets_id end as assetsId,
+        dir.id as dirId,c.abbreviation_name as customer,
+        if(a.id is null, false , true) as disabled
+        from data_dir dir
+        left join tg_customer_apply_auth a on a.icon = dir.icon and a.node_id = dir.node_id and a.icon != 'pack' and
+        a.parent_customer_auth_id is null
+        left join arkbi_analysis analysis on analysis.type = a.icon and analysis.id = a.node_id
+        left join sys_customer c on a.user_id = c.user_id
+        <where>
+            dir.icon != 'file' and dir.target = 2
+            <if test="dataDirIds != null and dataDirIds.size() != 0">
+                and dir.id in
+                <foreach collection="dataDirIds" item="item" open="(" separator="," close=")">#{item}</foreach>
+            </if>
+            <if test="userId !=null">and a.user_id = #{userId}</if>
+            <if test="assetsId != null">and dir.node_id = #{assetsId} and dir.icon = 'data_assets'</if>
+        </where>
+    </select>
+
+    <select id="listChartAuth" resultType="com.sinohealth.system.dto.CustomerApplyDTO">
+        select a.id,a.auth_type,a.icon,a.status,a.node_name as projectName,a.node_id,a.user_id,
+        case a.icon when 'form' then a.node_id when 'chart' then analysis.assets_id when 'dashboard' then
+        analysis.assets_id end as assetsId,
+        dir.id as dirId, true as disabled,c.abbreviation_name as customer
+        from tg_customer_apply_auth a
+        inner join data_dir dir on a.icon = dir.icon and a.node_id = dir.node_id
+        left join arkbi_analysis analysis on analysis.type = a.icon and analysis.id = a.node_id
+        left join sys_customer c on a.user_id = c.user_id
+        <where>
+            and a.icon = 'chart'
+            <if test="dataDirIds != null and dataDirIds.size() != 0">
+                and dir.parent_id in
+                <foreach collection="dataDirIds" item="item" open="(" separator="," close=")">#{item}</foreach>
+            </if>
+            <if test="userId !=null">and a.user_id = #{userId}</if>
+        </where>
+    </select>
+</mapper>

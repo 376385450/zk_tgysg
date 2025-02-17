@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TgUploadedFileDimMapper">
+
+
+    <select id="listTasks" resultType="com.sinohealth.system.domain.TgUploadedFileDim">
+        select * from dim_upload_file
+        where
+            retry_times &lt; #{maxRetry}
+          and (lock_owner_ is null or lock_exp_time_ is null or lock_exp_time_ &lt;= now())
+          and file_path is not null and file_path != ''
+          and (pdf_path is null or pdf_path = '')
+    </select>
+
+</mapper>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.biz.dataassets.mapper.AssetsCompareMapper">
+
+    <select id="pageQueryCompare" resultType="com.sinohealth.system.biz.dataassets.dto.AssetsComparePageDTO">
+
+        select c.*, m.biz_type, m.template_name, a.project_name as assets_name, a.applicant_name as applicant ,
+        p.name as project_name, t.table_name, a.prod_code
+        from tg_assets_compare c
+        left join tg_user_data_assets a on c.assets_id= a.id
+        left join tg_project p on a.project_id = p.id
+        left join tg_template_info m on a.template_id = m.id
+        left join table_info t on t.id = c.base_table_id
+        where c.create_type = #{request.createType}
+        and c.deleted = false
+        <if test="request.projectIds.size() > 0">
+            and p.id in
+            <foreach collection='request.projectIds' index='index' item='item' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="request.searchName != null and request.searchName != ''">
+            and ( p.name like concat('%', #{request.searchName} ,'%')
+            or a.project_name like concat('%', #{request.searchName} ,'%')
+            )
+        </if>
+        <if test="request.bizType != null and request.bizType != ''">
+            and m.biz_type = #{request.bizType}
+        </if>
+        <if test="request.templateName != null and request.templateName != ''">
+            and m.template_name like concat('%', #{request.templateName} ,'%')
+        </if>
+        <if test="request.state != null and request.state != ''">
+            and c.state = #{request.state}
+        </if>
+
+        <if test="request.prodCode != null and request.prodCode.size() > 0">
+            and
+            <foreach collection='request.prodCode' index='index' item='item' open='(' separator=' or ' close=')'>
+                a.prod_code like concat('%', #{item} ,'%')
+            </foreach>
+
+        </if>
+        <!--        <if test="request.prodCode != null and request.prodCode != ''">-->
+        <!--            and a.prod_code like concat('%', #{request.prodCode} ,'%')-->
+        <!--        </if>-->
+        <if test="request.tableName != null and request.tableName != ''">
+            and t.table_name like concat('%', #{request.tableName} ,'%')
+        </if>
+        <if test="request.period != null and request.period != ''">
+            and c.cur_version_period like concat('%', #{request.period} ,'%')
+        </if>
+        <if test="request.startTime != null and request.endTime != null">
+            and c.create_time between #{request.startTime} and #{request.endTime}
+        </if>
+        order by p.name desc, a.project_name desc, c.create_time desc
+
+    </select>
+
+</mapper>

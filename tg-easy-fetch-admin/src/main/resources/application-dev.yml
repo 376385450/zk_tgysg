@@ -1,0 +1,441 @@
+# 项目相关配置
+dataplatform:
+  # 名称
+  name: DataPlatform
+  # 版本
+  version: 1.0.0
+  # 版权年份
+  copyrightYear: 2022
+  # 实例演示开关
+  demoEnabled: false
+  #  profile: /apps/dataplatform/file/
+  profile: /Users/kerv1n/Downloads/
+  # 获取ip地址开关
+  addressEnabled: false
+  # 验证码类型 math 数组计算 char 字符验证
+  captchaType: math
+  # 级联查询
+  asyncScanCron: '*/9 * * * * ?'
+  asyncFailedCron: '0 0 0 * * ? '
+
+app:
+  cascadeFields: prodcode,sort1,sort2,sort3,sort4,sort5#zx,otc_rx#zx,prodcode
+  cascadeTable: cmh_dw_standard_collection_shard
+  maxTaskConCount: 10
+  cmhId: 3627
+  customerId: 28
+  bodyLogPath:
+    - /tg-easy-fetch/dict
+    - /tg-easy-fetch/openapi
+    - /tg-easy-fetch/monitor/job
+    - /tg-easy-fetch/table_management/application
+    - /tg-easy-fetch/table_management/template
+  wx-robot: 5e0066c3-742b-4b63-ad69-ca415fb5a319
+  wx-dev-robot: 5e0066c3-742b-4b63-ad69-ca415fb5a319
+  cloud-env: false
+  warning-type: ALL
+  warning-group-id: 508
+  need-hdfs: false
+  quartz-thread-count: 5
+  dolphin-ins-callback: http://192.168.16.90:32009
+
+transfer:
+  project-id: 13
+  applicant-id: 157
+
+# 开发环境配置
+server:
+  # 服务器的HTTP端口，默认为8080
+  port: 8081
+  servlet:
+    # 应用的访问路径
+    context-path: /tg-easy-fetch
+  tomcat:
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+# 日志配置
+logging:
+  level:
+    com.sinohealth: info
+    org.springframework: warn
+    com.alibaba.nacos: warn
+
+
+
+# Spring配置
+spring:
+  application:
+    name: tg-easy-fetch
+  main:
+    allow-bean-definition-overriding: true
+  # 邮件收发
+  mail:
+    host: smtp.exmail.qq.com
+    username: tech@sinohealth.cn
+    password: RKMhWmnD2rHY7eHN
+    properties:
+      mail:
+        smtp:
+          auth: true
+          port: 465
+          ssl:
+            enable: true
+          starttls:
+            enable: true
+            required: true
+  # 资源信息
+  messages:
+    # 国际化资源文件路径
+    basename: i18n/messages
+  # 文件上传
+  servlet:
+    multipart:
+      # 单个文件大小
+      max-file-size: 100MB
+      # 设置总上传的文件大小
+      max-request-size: 200MB
+  # 服务模块
+  devtools:
+    restart:
+      # 热部署开关
+      enabled: false
+    livereload:
+      enabled: true  # 开启热加载
+  # redis 配置
+  redis:
+    # 地址
+    host: 192.168.16.33
+    # 端口，默认为6379
+    port: 6379
+    # 数据库索引
+    database: 5
+    # 密码
+    password: 'zkredis'
+    # 连接超时时间
+    timeout: 10s
+    lettuce:
+      pool:
+        # 连接池中的最小空闲连接
+        min-idle: 0
+        # 连接池中的最大空闲连接
+        max-idle: 8
+        # 连接池的最大数据库连接数
+        max-active: 8
+        # #连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1ms
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+
+    druid:
+      # 主库数据源
+      master:
+        driverClassName: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://192.168.16.122:3306/tg_easy_fetch?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+        username: tg_easy_fetch
+        password: '#k52dlq1'
+      # 从库数据源
+      slave:
+        # 从数据源开关/默认关闭
+        enabled: true
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.clickhouse.jdbc.ClickHouseDriver
+        url: jdbc:clickhouse://192.168.56.50:8123/test_tgysg_dev?socket_timeout=8000000
+        username: u_tgysg_dev
+        password: Zk@20220810#ck
+        database: test_tgysg_dev
+      customerck:
+        enabled: true
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.clickhouse.jdbc.ClickHouseDriver
+        url: jdbc:clickhouse://192.168.56.50:8123/test_tgysg_customer?socket_timeout=290000
+        username: u_tgysg_dev
+        password: Zk@20220810#ck
+        database: test_tgysg_customer
+      hive:
+        enabled: true
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: org.apache.hive.jdbc.HiveDriver
+        url: jdbc:hive2://192.168.56.136:10000/tgysg_ods?socket_timeout=8000000
+        username: app_tgysg
+        password: app_tgysg@321
+        database: tgysg_ods
+      # 初始连接数
+      initialSize: 10
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 200
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+      # 配置检测连接是否有效
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: true
+        # 设置白名单，不填则允许所有访问
+        allow:
+        url-pattern: /druid/*
+        # 控制台管理用户名和密码
+        login-username: dataplatform
+        login-password: sinodata
+      filter:
+        stat:
+          enabled: true
+          # 慢SQL记录
+          log-slow-sql: true
+          slow-sql-millis: 500
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+# token配置
+token:
+  # 令牌自定义标识
+  header: Authorization
+  # 令牌密钥
+  secret: abcdefghijklmnopqrstuvwxyz
+  # 令牌有效期（默认30分钟）
+  expireTime: 480
+
+# MyBatis配置
+# https://baomidou.com/config/
+mybatis-plus:
+  # 对应的 XML 文件位置
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  # 实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.sinohealth.**.domain
+  # 针对 typeAliasesPackage，如果配置了该属性，则仅仅会扫描路径下以该类作为父类的域对象
+  #typeAliasesSuperType: Class<?>
+  # 如果配置了该属性，SqlSessionFactoryBean 会把该包下面的类注册为对应的 TypeHandler
+  #typeHandlersPackage: null
+  # 如果配置了该属性，会将路径下的枚举类进行注入，让实体类字段能够简单快捷的使用枚举属性
+  #typeEnumsPackage: null
+  # 启动时是否检查 MyBatis XML 文件的存在，默认不检查
+  checkConfigLocation: false
+  # 通过该属性可指定 MyBatis 的执行器，MyBatis 的执行器总共有三种：
+  # SIMPLE：该执行器类型不做特殊的事情，为每个语句的执行创建一个新的预处理语句（PreparedStatement）
+  # REUSE：该执行器类型会复用预处理语句（PreparedStatement）
+  # BATCH：该执行器类型会批量执行所有的更新语句
+  executorType: SIMPLE
+  # 指定外部化 MyBatis Properties 配置，通过该配置可以抽离配置，实现不同环境的配置部署
+  configurationProperties: null
+  configuration:
+    # 自动驼峰命名规则（camel case）映射
+    # 如果您的数据库命名符合规则无需使用 @TableField 注解指定数据库字段名
+    mapUnderscoreToCamelCase: true
+    # 默认枚举处理类,如果配置了该属性,枚举将统一使用指定处理器进行处理
+    # org.apache.ibatis.type.EnumTypeHandler : 存储枚举的名称
+    # org.apache.ibatis.type.EnumOrdinalTypeHandler : 存储枚举的索引
+    # com.baomidou.mybatisplus.extension.handlers.MybatisEnumTypeHandler : 枚举类需要实现IEnum接口或字段标记@EnumValue注解.
+    defaultEnumTypeHandler: org.apache.ibatis.type.EnumTypeHandler
+    # 当设置为 true 的时候，懒加载的对象可能被任何懒属性全部加载，否则，每个属性都按需加载。需要和 lazyLoadingEnabled 一起使用。
+    aggressiveLazyLoading: true
+    # MyBatis 自动映射策略
+    # NONE：不启用自动映射
+    # PARTIAL：只对非嵌套的 resultMap 进行自动映射
+    # FULL：对所有的 resultMap 都进行自动映射
+    autoMappingBehavior: PARTIAL
+    # MyBatis 自动映射时未知列或未知属性处理策
+    # NONE：不做任何处理 (默认值)
+    # WARNING：以日志的形式打印相关警告信息
+    # FAILING：当作映射失败处理，并抛出异常和详细信息
+    autoMappingUnknownColumnBehavior: NONE
+    # Mybatis一级缓存，默认为 SESSION
+    # SESSION session级别缓存，同一个session相同查询语句不会再次查询数据库
+    # STATEMENT 关闭一级缓存
+    localCacheScope: SESSION
+    # 开启Mybatis二级缓存，默认为 true
+    cacheEnabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    # 是否打印 Logo banner
+    banner: true
+    # 是否初始化 SqlRunner
+    enableSqlRunner: false
+    dbConfig:
+      # 主键类型
+      # AUTO 数据库ID自增
+      # NONE 空
+      # INPUT 用户输入ID
+      # ASSIGN_ID 全局唯一ID
+      # ASSIGN_UUID 全局唯一ID UUID
+      idType: AUTO
+      # 表名前缀
+      tablePrefix: null
+      # 字段 format,例: %s,(对主键无效)
+      columnFormat: null
+      # 表名是否使用驼峰转下划线命名,只对表名生效
+      tableUnderline: true
+      # 大写命名,对表名和字段名均生效
+      capitalMode: false
+      # 全局的entity的逻辑删除字段属性名
+      logicDeleteField: deleted
+      # 逻辑已删除值
+      logicDeleteValue: "now()"
+      # 逻辑未删除值
+      logicNotDeleteValue: 0
+      # 字段验证策略之 insert,在 insert 的时候的字段验证策略
+      # IGNORED 忽略判断
+      # NOT_NULL 非NULL判断
+      # NOT_EMPTY 非空判断(只对字符串类型字段,其他类型字段依然为非NULL判断)
+      # DEFAULT 默认的,一般只用于注解里
+      # NEVER 不加入 SQL
+      insertStrategy: NOT_NULL
+      # 字段验证策略之 update,在 update 的时候的字段验证策略
+      updateStrategy: NOT_NULL
+      # 字段验证策略之 select,在 select 的时候的字段验证策略既 wrapper 根据内部 entity 生成的 where 条件
+      selectStrategy: NOT_NULL
+
+# PageHelper分页插件
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+# Swagger配置
+swagger:
+  # 是否开启swagger
+  enabled: true
+  # 请求前缀
+  pathMapping: /
+
+# 防止XSS攻击
+xss:
+  # 过滤开关
+  enabled: true
+  # 排除链接（多个用逗号分隔）
+  excludes: /system/notice/*
+  # 匹配链接
+  urlPatterns: /system/*,/monitor/*,/tool/*
+log4j:
+  logger:
+    com.sinohealth.system.mapper.DataStandardDictTreeMapper: debug
+
+### huawei.obs 配置
+huawei:
+  obs:
+    # 存储空间
+    storageNameList:
+      - chenjiarong
+      - chenjiarong
+    # 临时URL访问有效期，单位：毫秒
+    expirationList:
+      - 86400
+      - 86400
+    # 目录
+    pathList:
+      - TEMP
+      - ARROGANCY
+    # huawei.obs.image
+    image:
+      model: lfit
+      width: 150
+      height: 150
+    # 单链接限速
+    trafficLimit: 40960000
+    # 公网 endpoint，对外链接使用
+    publicEndpoint: obs.cn-south-1.myhuaweicloud.com
+    # 内网 endpoint，内部链接使用
+    privateEndpoint: obs.cn-south-1.myhuaweicloud.com
+    ### huawei.obs.registry
+    registry:
+      obsType: HUAWEIOBS
+      endpoint: obs.cn-south-1.myhuaweicloud.com
+      accessKeyId: GXLBHYLF8SHZ40ZGCOG0
+      accessKeySecret: pFmHF6a2GI9Pm6pMLjLEk9qreLeJmbe8a1fJ7gIZ
+      subAccessKeyId:
+      subAccessKeySecret:
+      bucketName: chenjiarong.obs.cn-south-1.myhuaweicloud.com
+      roleArn:
+      acl: private
+      dir: /images
+      regionName:
+      cdnHost:
+    #短信参数
+  sms:
+    url: https://rtcsms.cn-north-1.myhuaweicloud.com:10743/sms/batchSendSms/v1
+    appKey: gr95D4Wg78Ykq433fT6o69mecxNk
+    appSecret: zmLe1ZkKDsN9hfy8oX2PoRUGav91
+    sender: 8822041437669
+    templateId: 9b25e13a3492446a8c5950329e184fb2
+# OpenApi配置
+openApi:
+  # OpenApi域名
+  domainName: http://192.168.16.98:9090/datacenter/openapi/
+
+#自定义数据源id
+dataset:
+  dirSourceId: 46
+  excel: https://chenjiarong.obs.cn-south-1.myhuaweicloud.com/ARROGANCY/20210826135721-excel-template.xls
+
+# 1.6.4.0 >> 回传数据
+returnData:
+  tableId: 3463
+
+# ds接口地址
+dsApi:
+  uri: http://192.168.16.151:12345/dolphinscheduler/
+  token: 44992800195c32d25cac0040eb0f5dcc
+  projectName: 易数阁
+  autoProcessProjectName: 易数阁-自动化流程-开发环境
+  syncProjectName: 易数阁-数据交换-开发环境
+
+sinohealth:
+  maindata:
+    gateway:
+      url: https://gateway.sinohealth.com
+      appId: 2306991630202187778
+      appsecret: 70723470663176656a33656972767a75
+  metadata-service:
+    url: 192.168.16.90:30461
+  saas:
+    gateway:
+      #      url: http://124.71.217.129:30290
+      url: http://192.168.16.91:30290
+  center:
+    office:
+      api: 192.168.16.90:32744 # office服务地址
+  #      api: 127.0.0.1:18765
+  file:
+    storageCode: jszt_aonuo_obs
+    lockNum: 3
+arkbi:
+  source-id:
+    lan: 1c595d1b6b2c469392cbc7b54adcd181
+    wlan: 1187ae5e48914d7f8e83921ca9f95721
+  server:
+    address: http://192.168.16.90:32099
+    client-id: yishuge
+    client-secret: 123456
+#    save-callback-url: http://192.168.16.151:5050/HomePage/myAssets/dataReport?analysisId={0}&datachartId={1}
+
+task:
+  tableId:
+  source-db-type: POSTGRESQL
+  source-db-id: 142
+  target-db-type: CLICKHOUSE
+  target-db-id: 144
+  tenantId: 6
+
+ftp:
+  server: 192.168.16.157
+  port: 21
+  user: test_fetch
+  password: sinohealth
+
+tg:
+  tableInfo:
+    compare:
+      hdfsPrefix: "hdfs://nameservice1/vdb1/hive/warehouse/tgysg_ods.db/"
+      batchSize: 50

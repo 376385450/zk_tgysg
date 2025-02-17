@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TgCogradientInfoMapper">
+
+    <select id="findList" resultType="com.sinohealth.system.dto.TgCogradientInfoDto">
+        SELECT a.*,b.table_name  FROM tg_cogradient_info a
+             LEFT JOIN table_info b ON a.table_id = b.id
+        <where>
+            <if test="searchVal != null and searchVal != ''">
+                AND ( b.table_name like CONCAT('%', #{searchVal}, '%') or a.name like CONCAT('%', #{searchVal}, '%')
+                )
+            </if>
+        </where>
+        order by a.create_time desc
+    </select>
+
+    <update id="updateState">
+         update  tg_cogradient_info set  status  =#{state} , update_by = #{updateBy} ,  update_time = now()
+        where id = #{id}
+    </update>
+
+
+    <select id="getDefIdByTask"  resultType="String">
+        SELECT GROUP_CONCAT(DISTINCT process_id) FROM tg_cogradient_info
+        <where>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="tableId != null">
+                AND table_id = #{tableId}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="getByDefId" resultType="com.sinohealth.system.dto.TgCogradientDetailDto">
+        SELECT a.name,a.id,b.id AS tableId,a.process_id as processId,b.table_name AS tableName FROM tg_cogradient_info a
+               LEFT JOIN table_info b ON a.table_id = b.id
+        WHERE a.process_id = #{defId}  LIMIT 1
+    </select>
+
+    <select id="queryStateCnt" resultType="com.sinohealth.system.dto.TgCogradientMonitorDto">
+        SELECT
+            a.table_id,
+            b.table_name,
+            GROUP_CONCAT( a.process_id ) AS processIds
+        FROM
+            tg_cogradient_info a
+                LEFT JOIN table_info b ON a.table_id = b.id
+        GROUP BY
+            a.table_id
+    </select>
+
+    <select id="queryAllProcessId" resultType="String">
+        SELECT GROUP_CONCAT(process_id) FROM tg_cogradient_info
+    </select>
+
+    <select id="getCountByName" resultType="int">
+        select  count(*) from tg_cogradient_info where  name = #{name}
+    </select>
+
+</mapper>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.SysCustomerMapper">
+
+    <update id="updateByUserId">
+            update  sys_customer set
+                full_name = #{fullName},
+                abbreviation_name = #{abbreviationName},
+                is_count = #{isCount},
+                manage_user = #{manageUser},
+                service_id = #{serviceId},
+                update_by = #{updateBy},
+                update_time = now(),
+                customer_type = #{customerType}
+        where user_id = #{userId}
+    </update>
+
+    <select id="getByUserId" resultType="SysCustomer">
+            select  * from  sys_customer where   user_id = #{userId}
+    </select>
+
+    <select id="queryList" resultType="com.sinohealth.common.core.domain.entity.SysUser">
+        SELECT
+        u.*,
+        r.role_name AS 'roleName',
+        l.login_time AS 'loginDate',
+        sc.id AS 'sysCustomer.id',
+        sc.user_id AS 'sysCustomer.userId',
+        sc.full_name AS 'sysCustomer.fullName',
+        sc.abbreviation_name AS 'sysCustomer.abbreviationName',
+        sc.is_count AS 'sysCustomer.isCount',
+        sc.manage_user AS 'sysCustomer.manageUser',
+        a.cnt as 'subAccountCnt',
+        sc.customer_type as 'sysCustomer.customerType'
+        FROM
+        sys_user AS u
+        LEFT JOIN sys_user_role ur ON u.user_id = ur.user_id
+        LEFT JOIN sys_role r ON r.role_id = ur.role_id
+        LEFT JOIN ( SELECT user_name, max( login_time ) AS login_time FROM sys_logininfor WHERE msg = '登录成功' GROUP BY 1 ) l ON u.user_name = l.user_name
+        LEFT JOIN sys_customer sc ON u.user_id = sc.user_id
+        LEFT JOIN (	SELECT parent_account_id,count(*) AS cnt FROM sys_user WHERE is_sub_account = 1 AND del_flag = 0 GROUP BY 1)a ON  a.parent_account_id = u.user_id
+        WHERE
+        u.del_flag = 0
+        AND u.user_info_type = 3 and  u.is_sub_account = 0
+        <if test="searchVal != null and searchVal != ''">
+            and ( sc.full_name  like concat('%', #{searchVal}, '%')
+            OR sc.abbreviation_name  like concat('%', #{searchVal}, '%')
+            OR u.email like concat('%', #{searchVal}, '%')
+            )
+        </if>
+        <if test="status != null ">
+            and u.status =  #{status}
+        </if>
+        <if test="manageUserId != null ">
+            and   sc.manage_user =  #{manageUserId}
+        </if>
+
+    </select>
+
+    <select id="selectSubList" resultType="com.sinohealth.common.core.domain.entity.SysUser">
+        SELECT
+            u.*,
+            r.role_name AS 'roleName',
+            l.login_time AS 'loginDate',
+            sc.id AS 'sysCustomer.id',
+            sc.user_id AS 'sysCustomer.userId',
+            sc.full_name AS 'sysCustomer.fullName',
+            sc.abbreviation_name AS 'sysCustomer.abbreviationName',
+            sc.is_count AS 'sysCustomer.isCount',
+            sc.manage_user AS 'sysCustomer.manageUser',
+            sc.customer_type as 'sysCustomer.customerType'
+        FROM
+        sys_user AS u
+        LEFT JOIN sys_user u1 ON u.parent_account_id = u1.user_id
+        LEFT JOIN sys_user_role ur ON u1.user_id = ur.user_id
+        LEFT JOIN sys_role r ON r.role_id = ur.role_id
+        LEFT JOIN ( SELECT user_name, max( login_time ) AS login_time FROM sys_logininfor WHERE msg = '登录成功' GROUP BY 1 ) l ON u.user_name = l.user_name
+        LEFT JOIN sys_customer sc ON u1.user_id = sc.user_id
+        WHERE
+        u.del_flag = 0  AND u.is_sub_account = 1 and u.parent_account_id = #{parentAccountId}
+        <if test="searchVal != null and searchVal != ''">
+            and (    u.user_name like concat('%', #{searchVal}, '%') OR  u.phonenumber = #{searchVal})
+        </if>
+        <if test="status != null ">
+            and u.status =  #{status}
+        </if>
+    </select>
+
+    <update id="updateByBatchIds" >
+        update  sys_customer
+       set manage_user = #{manageId}
+        WHERE
+              user_id  in
+            <foreach item='item' index='index' collection='ids' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+    </update>
+
+    <select id="selectManageUser" resultType="com.sinohealth.common.core.domain.entity.SysUser">
+        SELECT u.*,
+               r.role_name          AS 'roleName',
+                sc.id                AS 'sysCustomer.id',
+                sc.user_id           AS 'sysCustomer.userId',
+                sc.full_name         AS 'sysCustomer.fullName',
+                sc.abbreviation_name AS 'sysCustomer.abbreviationName',
+                sc.is_count          AS 'sysCustomer.isCount',
+                sc.manage_user       AS 'sysCustomer.manageUser',
+                sc.customer_type as 'sysCustomer.customerType'
+        FROM sys_user AS u
+                 LEFT JOIN sys_user_role ur ON u.user_id = ur.user_id
+                 LEFT JOIN sys_role  r ON r.role_id = ur.role_id
+                 LEFT JOIN sys_customer sc ON u.user_id = sc.user_id
+        WHERE u.del_flag = 0
+          AND user_info_type = 2
+          AND r.role_id IS NOT NULL
+    </select>
+
+    <select id="getUserCount" resultType="java.util.Map">
+        SELECT
+            SUM( user_info_type = 2 ) AS nbcnt,
+            SUM( user_info_type = 3 ) AS khcnt
+        FROM sys_user
+        WHERE
+            del_flag = 0
+          AND is_sub_account = 0
+    </select>
+
+    <select id="selectNames" resultType="java.lang.String">
+        SELECT COALESCE(full_name, abbreviation_name) name FROM `sys_customer` WHERE FIND_IN_SET(user_id,#{ids});
+    </select>
+    <select id="listAllCustomers" resultType="com.sinohealth.common.core.domain.entity.SysCustomer">
+        select * from `sys_customer`
+    </select>
+
+</mapper>

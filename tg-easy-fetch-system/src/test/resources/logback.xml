@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 日志存放路径 -->
+    <property name="log.path" value="./apps/logs/fetch"/>
+    <!-- 日志输出格式 -->
+    <property name="log.pattern"
+              value="%d{HH:mm:ss.SSS} %X{tid}[%thread] %-5level %logger{20}#%method \\(%F:%line\\) - %msg%n"/>
+
+    <!-- 控制台输出 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <!-- 在日志配置级别的基础上过滤掉info级别以下的日志 -->
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- 系统日志输出 -->
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/run.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/run.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 日志最大的历史 60天 -->
+            <maxHistory>60</maxHistory>
+            <maxFileSize>512MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <appender name="table-log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/user.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 按天回滚 daily -->
+            <fileNamePattern>${log.path}/user.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 日志最大的历史 60天 -->
+            <maxHistory>60</maxHistory>
+            <maxFileSize>512MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- 错误日志输出 -->
+    <appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/fetch-error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>60</maxHistory>
+            <maxFileSize>512MB</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <root level="ERROR">
+        <appender-ref ref="error"/>
+    </root>
+
+    <root level="info">
+        <appender-ref ref="console"/>
+    </root>
+
+    <!--系统操作日志-->
+    <root level="info">
+        <appender-ref ref="file"/>
+    </root>
+
+    <!--表操作日志-->
+    <logger name="table-log" level="info">
+        <appender-ref ref="table-log"/>
+    </logger>
+</configuration> 

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TableFieldInfoMapper">
+
+
+    <select id="findListByIds" resultType="com.sinohealth.system.domain.TableFieldInfo">
+        select t.* ,ti.table_name as  "table_name"
+            from table_field_info t
+            left  join table_info ti on ti.id = t.table_id
+        where  t.status=1
+        <if test="ids != null and ids.size()>0">
+            and t.table_id in
+            <foreach item='item' index='index' collection='ids' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+        ORDER BY t.id, t.sort asc
+    </select>
+
+    <select id="getCountByTableId"  resultType="int">
+         select  count(*) from table_field_info where table_id = #{tableId} and field_name = #{fieldName}
+    </select>
+
+
+    <select id="findListByFieldIds" resultType="com.sinohealth.system.domain.TableFieldInfo">
+        select * from table_field_info
+        <where>
+                id in
+                <foreach item='item' index='index' collection='ids' open='(' separator=',' close=')'>
+                    #{item}
+                </foreach>
+
+        </where>
+        ORDER by id
+    </select>
+
+    <select id="getFieldsByTableName" resultType="java.lang.String">
+        SELECT field_name FROM table_field_info t1
+        LEFT JOIN table_info t2
+        ON t1.table_id = t2.id
+        WHERE t2.table_name = #{tableName}
+    </select>
+
+
+</mapper>

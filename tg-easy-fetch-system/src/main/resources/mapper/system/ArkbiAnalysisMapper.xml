@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.ArkbiAnalysisMapper">
+    <resultMap id="BaseResultMap" type="com.sinohealth.system.domain.ArkbiAnalysis">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="assets_id" jdbcType="VARCHAR" property="assetsId"/>
+        <result column="analysis_id" jdbcType="VARCHAR" property="analysisId"/>
+        <result column="edit_url" jdbcType="VARCHAR" property="editUrl"/>
+        <result column="preview_url" jdbcType="VARCHAR" property="previewUrl"/>
+        <result column="create_by" jdbcType="BIGINT" property="createBy"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_by" jdbcType="BIGINT" property="updateBy"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="share_url" jdbcType="VARCHAR" property="shareUrl"/>
+        <result column="share_url_password" jdbcType="VARCHAR" property="shareUrlPassword"/>
+        <result column="parent_id" jdbcType="BIGINT" property="parentId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, assets_id, analysis_id, edit_url, preview_url, create_by, create_time, update_by,
+    update_time, `status`, `type`, share_url, share_url_password, parent_id
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from arkbi_analysis
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from arkbi_analysis
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.sinohealth.system.domain.ArkbiAnalysis"
+            useGeneratedKeys="true">
+        insert into arkbi_analysis (assets_id, analysis_id, edit_url,
+                                    preview_url, create_by, create_time,
+                                    update_by, update_time, `status`,
+            `type`, share_url, share_url_password, parent_id, `name`)
+        values (#{assetsId,jdbcType=VARCHAR}, #{analysisId,jdbcType=VARCHAR}, #{editUrl,jdbcType=VARCHAR},
+                #{previewUrl,jdbcType=VARCHAR}, #{createBy,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP},
+                #{updateBy,jdbcType=BIGINT}, #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER},
+                #{type,jdbcType=VARCHAR}, #{shareUrl,jdbcType=VARCHAR}, #{shareUrlPassword,jdbcType=VARCHAR},
+                #{parentId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.sinohealth.system.domain.ArkbiAnalysis" useGeneratedKeys="true">
+        insert into arkbi_analysis
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="assetsId != null">
+                assets_id,
+            </if>
+            <if test="analysisId != null">
+                analysis_id,
+            </if>
+            <if test="editUrl != null">
+                edit_url,
+            </if>
+            <if test="previewUrl != null">
+                preview_url,
+            </if>
+            <if test="createBy != null">
+                create_by,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateBy != null">
+                update_by,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="status != null">
+                `status`,
+            </if>
+            <if test="type != null">
+                `type`,
+            </if>
+            <if test="shareUrl != null">
+                share_url,
+            </if>
+            <if test="shareUrlPassword != null">
+                share_url_password,
+            </if>
+            <if test="parentId != null">
+                parent_id,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="assetsId != null">
+                #{assetsId,jdbcType=VARCHAR},
+            </if>
+            <if test="analysisId != null">
+                #{analysisId,jdbcType=VARCHAR},
+            </if>
+            <if test="editUrl != null">
+                #{editUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="previewUrl != null">
+                #{previewUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="createBy != null">
+                #{createBy,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateBy != null">
+                #{updateBy,jdbcType=BIGINT},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="shareUrl != null">
+                #{shareUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="shareUrlPassword != null">
+                #{shareUrlPassword,jdbcType=VARCHAR},
+            </if>
+            <if test="parentId != null">
+                #{parentId,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.sinohealth.system.domain.ArkbiAnalysis">
+        update arkbi_analysis
+        <set>
+            <if test="assetsId != null">
+                assets_id = #{assetsId,jdbcType=VARCHAR},
+            </if>
+            <if test="analysisId != null">
+                analysis_id = #{analysisId,jdbcType=VARCHAR},
+            </if>
+            <if test="editUrl != null">
+                edit_url = #{editUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="previewUrl != null">
+                preview_url = #{previewUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy,jdbcType=BIGINT},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null">
+                `status` = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="type != null">
+                `type` = #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="shareUrl != null">
+                share_url = #{shareUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="shareUrlPassword != null">
+                share_url_password = #{shareUrlPassword,jdbcType=VARCHAR},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                `name` = #{name,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.sinohealth.system.domain.ArkbiAnalysis">
+        update arkbi_analysis
+        set assets_id   = #{assetsId,jdbcType=VARCHAR},
+            analysis_id = #{analysisId,jdbcType=VARCHAR},
+            edit_url    = #{editUrl,jdbcType=VARCHAR},
+            preview_url = #{previewUrl,jdbcType=VARCHAR},
+            create_by   = #{createBy,jdbcType=BIGINT},
+            create_time = #{createTime,jdbcType=TIMESTAMP},
+            update_by   = #{updateBy,jdbcType=BIGINT},
+            update_time = #{updateTime,jdbcType=TIMESTAMP}, `status` = #{status,jdbcType=INTEGER}, `type` = #{type,jdbcType=VARCHAR}, share_url = #{shareUrl,jdbcType=VARCHAR}, share_url_password = #{shareUrlPassword,jdbcType=VARCHAR}, parent_id = #{parentId,jdbcType=BIGINT}, `name` = #{name,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="list" resultType="com.sinohealth.system.domain.ArkbiAnalysisDTO">
+        select a.*,b.dir_name as projectName,b.id as dirId
+        from arkbi_analysis a
+        inner join data_dir b on a.id = b.node_id and (b.icon = 'chart' or b.icon = 'dashboard')
+        <where>
+            <if test="type != null and type != ''">and a.type = #{type}</if>
+            <if test="assetsIds != null and assetsIds.size > 0">
+                and a.assets_id in
+                <foreach collection="assetsIds" open="(" separator="," close=")" item="item">#{item}</foreach>
+            </if>
+            <if test="parent != null">
+                <choose>
+                    <when test="parent == true">
+                        and b.parent_id = 0
+                    </when>
+                    <otherwise>
+                        and b.parent_id != 0
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+
+    </select>
+</mapper>

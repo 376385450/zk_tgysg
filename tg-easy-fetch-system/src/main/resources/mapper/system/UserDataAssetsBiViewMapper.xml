@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.biz.dataassets.mapper.UserDataAssetsBiViewMapper">
+
+    <select id="queryNeedDeleteView" resultType="com.sinohealth.system.biz.dataassets.domain.UserDataAssetsBiView">
+        select v.*
+        from tg_user_data_assets_bi_view v
+                 join tg_user_data_assets t on v.assets_id = t.id
+            where t.data_expire <![CDATA[ < ]]> now() and v.data_state = 'normal'
+    </select>
+</mapper>

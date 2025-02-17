@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TgAuditProcessInfoMapper">
+
+    <select id="queryByHandler" resultType="com.sinohealth.system.dto.auditprocess.AuditPageDto">
+        SELECT te.base_table_name as 'baseTableName', ap.project_name as 'projectName', ap.require_attr as
+        'requireAttr', ap.require_time_type as 'requireTimeType',
+        ap.data_expir as 'dataExpir', ap.applicant_name as 'applicantName', ap.applicant_department as
+        'applicantDepartment', ap.create_time as 'applyTime', ap.id as applicationId,
+        ap.current_audit_process_status as 'currentAuditProcessStatus'
+        FROM tg_application_info ap
+        LEFT JOIN tg_template_info te ON ap.template_id = te.id
+        LEFT JOIN tg_audit_process_info au ON ap.process_id = au.process_id
+        <where>
+            FIND_IN_SET(#{userId},ap.current_handlers)
+            and ap.copy = 0
+            <if test="search.searchRequireTimeType !=null and search.searchRequireTimeType != ''">
+                and ap.require_time_type = #{search.searchRequireTimeType}
+            </if>
+            <if test="search.searchClient !=null and search.searchClient != ''">
+                and ap.client_names like concat('%',#{search.searchClient},'%')
+            </if>
+            <if test="search.searchReqiureAttr !=null and search.searchReqiureAttr != ''">
+                and ap.require_attr = #{search.searchReqiureAttr}
+            </if>
+            <if test="search.searchProcessStatus !=null and search.searchProcessStatus != ''">
+                and au.current_audit_status = #{search.searchProcessStatus}
+            </if>
+            <if test="search.searchProjectName !=null and search.searchProjectName != ''">
+                and ap.project_name like concat('%',#{search.searchProjectName},'%')
+            </if>
+            <if test="search.searchTableName !=null and search.searchTableName != ''">
+                and te.base_table_name like concat('%',#{search.searchTableName},'%')
+            </if>
+        </where>
+        order by ap.update_time desc
+    </select>
+
+    <select id="queryApplicationByHandler" resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        SELECT ap.*,ai.name as docName
+        FROM tg_application_info ap
+        -- LEFT JOIN tg_template_info te ON ap.template_id = te.id
+        -- LEFT JOIN tg_audit_process_info au ON ap.process_id = au.id
+        LEFT JOIN tg_doc_info ai on ap.doc_id = ai.id
+        LEFT JOIN table_info ti on ap.base_table_id = ti.id
+        <where>
+            1=1
+            <if test="userId!=null">
+                AND FIND_IN_SET(#{userId},ap.all_handlers)
+            </if>
+            and ap.copy = 0
+            <if test="search.applicationType !=null and search.applicationType != ''">
+                and (ap.application_type = #{search.applicationType})
+            </if>
+
+            <if test="search.applicationType == 'doc'">
+                AND ai.id is not null
+            </if>
+            <if test="search.auditId != null">
+                AND ap.process_id = #{search.auditId}
+            </if>
+            <if test="search.applyUser!=null and  search.applyUser!=''">
+                AND ap.applicant_name like concat('%',#{search.applyUser},'%')
+            </if>
+
+            <if test="search.searchRequireTimeType !=null and search.searchRequireTimeType != ''">
+                and ap.require_time_type = #{search.searchRequireTimeType}
+            </if>
+            <if test="search.searchClient !=null and search.searchClient != ''">
+                and ap.client_names like concat('%',#{search.searchClient},'%')
+            </if>
+            <if test="search.searchReqiureAttr !=null and search.searchReqiureAttr != ''">
+                and ap.require_attr = #{search.searchReqiureAttr}
+            </if>
+            <if test="search.searchProcessStatus !=null and search.searchProcessStatus != ''">
+                and ap.current_audit_process_status = #{search.searchProcessStatus}
+            </if>
+            <if test="search.searchContent !=null and search.searchContent != ''">
+                and (ap.project_name like concat('%',#{search.searchContent},'%')
+                or ap.base_table_name like concat('%',#{search.searchContent},'%')
+                or ap.applicant_name like concat('%',#{search.searchContent},'%')
+                or ai.name like concat('%',#{search.searchContent},'%'))
+                or ti.table_alias like concat('%',#{search.searchContent},'%')
+            </if>
+
+        </where>
+        order by ap.update_time desc
+    </select>
+
+
+    <select id="queryApplicationByApplicantId" resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        SELECT ap.*
+        FROM tg_application_info ap
+        LEFT JOIN tg_template_info te ON ap.template_id = te.id
+        LEFT JOIN tg_audit_process_info au ON ap.process_id = au.process_id
+        <where>
+            ap.applicant_id = #{userId}
+            and ap.copy = 0
+            <if test="search.searchRequireTimeType !=null and search.searchRequireTimeType != ''">
+                and ap.require_time_type = #{search.searchRequireTimeType}
+            </if>
+            <if test="search.searchClient !=null and search.searchClient != ''">
+                and ap.client_names like concat('%',#{search.searchClient},'%')
+            </if>
+            <if test="search.searchReqiureAttr !=null and search.searchReqiureAttr != ''">
+                and ap.require_attr = #{search.searchReqiureAttr}
+            </if>
+            <if test="search.searchProcessStatus !=null and search.searchProcessStatus != ''">
+                and ap.current_audit_process_status = #{search.searchProcessStatus}
+            </if>
+            <if test="search.searchContent !=null and search.searchContent != ''">
+                and (ap.project_name like concat('%',#{search.searchContent},'%')
+                or te.base_table_name like concat('%',#{search.searchContent},'%'))
+            </if>
+        </where>
+        order by ap.update_time desc
+    </select>
+
+    <select id="queryApplicationById" resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        SELECT *
+        FROM (SELECT ap.*,
+                     ai.name as docName
+              FROM tg_application_info ap
+                       LEFT JOIN tg_doc_info ai on ap.doc_id = ai.id
+--                   LEFT JOIN tg_template_info te ON ap.template_id = te.id
+                       LEFT JOIN tg_audit_process_info au ON ap.process_id = au.process_id
+              WHERE ap.id = #{applicationId}
+              ORDER BY au.process_version DESC
+              LIMIT 100000) a
+        GROUP BY id
+    </select>
+
+
+    <select id="queryDataApplicationPageDtoByApplicantId"
+            resultType="com.sinohealth.system.biz.application.dto.DataApplicationPageDto">
+        SELECT * FROM (
+        SELECT ap.base_table_name as 'baseTableName', ap.project_name as 'projectName', ap.require_attr as
+        'requireAttr',
+        ap.client_names as 'readableUsers', ap.require_time_type as 'requireTimeType',ap.data_expir as 'dataExpir',
+        ap.create_time as 'applyTime', ap.apply_type as 'applyType', ap.update_time, ap.id as applicationId,
+        ap.applicant_id as applicantId, ap.id as id, ap.current_audit_process_status as
+        'currentAuditProcessStatus', ap.current_handlers as 'currentHadnlers', ap.current_index as 'currentIndex',
+        #{search.applicationType} as applicationType, te.template_name as 'templateName',
+        ap.base_table_id as 'baseTableId',ap.apply_reason as 'applyReason', tp.name as 'newProjectName'
+        FROM tg_application_info ap
+        LEFT JOIN tg_template_info te ON ap.template_id = te.id
+        <if test="search.applicationType == 'table'">
+            LEFT JOIN table_info ti ON ti.id = ap.base_table_id
+        </if>
+        LEFT JOIN tg_project tp ON tp.id = ap.project_id
+        LEFT JOIN tg_audit_process_info au ON te.process_id = au.process_id
+        <where>
+            ap.applicant_id = #{userId}
+            and ap.copy = 0
+            and ap.application_type = #{search.applicationType}
+
+            <if test="search.searchRequireTimeType !=null and search.searchRequireTimeType != ''">
+                and ap.require_time_type = #{search.searchRequireTimeType}
+            </if>
+
+            <if test="search.searchReqiureAttr !=null and search.searchReqiureAttr != ''">
+                and ap.require_attr = #{search.searchReqiureAttr}
+            </if>
+            <if test="search.searchProcessStatus !=null and search.searchProcessStatus != ''">
+                and ap.current_audit_process_status = #{search.searchProcessStatus}
+            </if>
+            <if test="search.searchContent !=null and search.searchContent != ''">
+                and (
+                ap.base_table_name like concat('%',#{search.searchContent},'%')
+                or ap.project_name like concat('%',#{search.searchContent},'%')
+                or ap.applicant_name like concat('%',#{search.searchContent},'%')
+                <if test="search.applicationType == 'table'">
+                    or ti.table_alias like concat('%',#{search.searchContent},'%')
+                </if>
+                )
+            </if>
+            <if test="search.searchClient !=null and search.searchClient != ''">
+                and ap.client_names like concat('%',#{search.searchClient},'%')
+            </if>
+            <!--            <if test="search.searchTableName !=null and search.searchTableName != ''">-->
+            <!--                and ap.base_table_name = #{search.searchTableName}-->
+            <!--            </if>-->
+
+        </where>
+        ORDER BY au.process_version DESC LIMIT 100000 ) a
+        GROUP BY id
+        ORDER BY update_time desc
+    </select>
+
+    <select id="queryAuditProcessPageByProcessIdAndMaxVersion"
+            resultType="com.sinohealth.system.domain.TgAuditProcessInfo">
+        SELECT a.*, b.base_table_id, (SELECT GROUP_CONCAT( DISTINCT template_name SEPARATOR '、') from tg_template_info
+        where process_id = a.process_id) template_name FROM
+        (SELECT * FROM
+        (SELECT * FROM tg_audit_process_info
+        ORDER BY process_version desc limit 100000) t
+        GROUP BY t.process_id
+        ORDER BY id asc) a
+        LEFT JOIN tg_template_info b
+        ON a.process_id = b.process_id
+
+        <where>
+            <if test="params.id !=null and params.id != ''">
+                id = #{params.id}
+            </if>
+            <if test="params.searchTemplateName !=null and params.searchTemplateName != ''">
+                and template_name = #{params.searchTemplateName}
+            </if>
+            <if test="params.searchProcessName !=null and params.searchProcessName != ''">
+                and process_name like concat('%',#{params.searchProcessName},'%')
+            </if>
+        </where>
+        GROUP BY process_id, process_version
+        order by a.update_time desc
+    </select>
+
+    <select id="queryProcessByIdAndVersion" resultType="com.sinohealth.system.domain.TgAuditProcessInfo">
+        select *
+        from tg_audit_process_info
+        where process_id = #{processId}
+          and process_version = #{processVersion}
+    </select>
+
+    <select id="queryProcessByIdAndMaxVersion" resultType="com.sinohealth.system.domain.TgAuditProcessInfo">
+        SELECT *
+        FROM (SELECT *
+              FROM (SELECT *
+                    FROM tg_audit_process_info
+                    ORDER BY process_version desc
+                    limit 100000) t
+              GROUP BY t.process_id
+              ORDER BY id asc) a
+        WHERE process_id = #{processId}
+        LIMIT 1
+    </select>
+
+    <select id="queryProcessByGenericAndMaxVersion"
+            resultType="com.sinohealth.system.domain.TgAuditProcessInfo">
+        SELECT *
+        FROM (SELECT *
+              FROM (SELECT *
+                    FROM tg_audit_process_info
+                    ORDER BY process_version desc
+                    limit 100000) t
+              GROUP BY t.process_id
+              ORDER BY id asc) a;
+
+    </select>
+
+    <select id="queryProcessNeedToUpdate" resultType="com.sinohealth.system.domain.TgAuditProcessInfo">
+        select *
+        from tg_audit_process_info
+        where process_id in
+              (SELECT distinct process_id
+               FROM tg_application_info
+               WHERE copy = 0
+                 and CONCAT(',', all_handlers, ',')
+            REGEXP CONCAT (',('
+            , #{userId}
+            , '),'))
+    </select>
+
+    <select id="queryDocApplicationPageDtoByApplicationId"
+            resultType="com.sinohealth.system.biz.application.dto.DocApplicationPageDto">
+        SELECT * FROM (
+        SELECT ap.create_time as 'applyTime', ap.update_time, ap.id as applicationId, ap.applicant_id as applicantId,
+        ap.id as id, di.name as docName, ap.doc_name as docNameBak, ap.apply_comment as applyComment,
+        ap.current_audit_process_status as 'currentAuditProcessStatus', ap.current_handlers as 'currentHadnlers',
+        ap.current_index as 'currentIndex', 'doc' as applicationType
+        FROM tg_application_info ap
+        LEFT JOIN tg_template_info te ON ap.template_id = te.id
+        LEFT JOIN tg_audit_process_info au ON te.process_id = au.process_id
+        LEFT JOIN tg_doc_info di ON ap.doc_id = di.id
+        <where>
+            ap.applicant_id = #{userId}
+            and ap.copy = 0
+            and ap.application_type = 'doc'
+
+            <if test="search.searchProcessStatus !=null and search.searchProcessStatus != ''">
+                and ap.current_audit_process_status = #{search.searchProcessStatus}
+            </if>
+            <if test="search.searchContent !=null and search.searchContent != ''">
+                and di.name like concat('%',#{search.searchContent},'%')
+            </if>
+
+        </where>
+        ORDER BY au.process_version DESC LIMIT 100000 ) a
+        GROUP BY id
+        ORDER BY update_time desc
+    </select>
+    <select id="queryApplyByHandlerAndType" resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        SELECT ap.id,
+        ap.template_id,
+        ap.template_version,
+        ap.applicant_id,
+        ap.applicant_name,
+        ap.applicant_department,
+        ap.project_name,
+        ap.require_attr,
+        ap.require_time_type,
+        ap.data_expir,
+        ap.handle_node_json,
+        ap.table_alias_mapping_json,
+        ap.handle_index_mapping_json,
+        ap.status,
+        ap.current_audit_status,
+        ap.creator,
+        ap.updater,
+        ap.create_time,
+        ap.update_time,
+        ap.apply_passed_time,
+        ap.process_id,
+        ap.current_index,
+        ap.current_handlers,
+        ap.status_chain,
+        ap.process_version,
+        ap.all_handlers,
+        ap.base_table_id,
+        ap.base_table_name,
+        ap.all_table_names,
+        ap.current_audit_process_status,
+        ap.current_audit_node_status,
+        ap.out_table_name,
+        ap.apply_type,
+        ap.period_field,
+        ap.period_type,
+        ap.application_type,
+        ap.application_no,
+        ap.doc_id,
+        ap.doc_name,
+        ap.apply_comment,
+        ap.doc_authorization_json,
+        ap.permission_json,
+        ap.apply_reason,
+        ap.old_application_id,
+        ap.new_application_id,
+        ap.pm,
+        ap.deliver_time,
+        ap.deliver_time_type,
+        ap.project_id,
+        ap.apply_remark,
+        ap.expect_time,
+        ap.assets_id,
+        ap.new_asset_id,
+        ap.assets_create_time,
+        ap.config_type,
+        ap.config_sql,
+        ap.config_sql_workflow_id,
+        ap.workflow_id,
+        ai.name as docName,
+        ap.data_state,
+        ap.data_amount,
+        ap.data_cost,
+        ap.assets_attach_json,
+        json_extract(ap.granularity_json,"$[2].selectGranularity") as push_project_name,
+        ap.relate_dict
+        FROM tg_application_info ap
+        LEFT JOIN tg_project pro on ap.project_id = pro.id
+        <if test="search.searchClient !=null and search.searchClient != ''">
+            LEFT JOIN t_customer tc on pro.customer_id = tc.id
+        </if>
+
+        -- LEFT JOIN tg_template_info te ON ap.template_id = te.id
+        -- LEFT JOIN tg_audit_process_info au ON ap.process_id = au.id
+        LEFT JOIN tg_doc_info ai on ap.doc_id = ai.id
+        <if test="search.searchContent !=null and search.searchContent != ''">
+            LEFT JOIN table_info ti on ap.base_table_id = ti.id
+        </if>
+
+        <where>
+            1=1
+            <if test="search.dataState !=null and search.dataState != ''">
+                AND ap.data_state = #{search.dataState}
+            </if>
+            <if test="userId!=null">
+                AND FIND_IN_SET(#{userId},ap.all_handlers)
+            </if>
+            and ap.copy = 0
+            <if test="search.applicationType !=null and search.applicationType != ''">
+                <choose>
+                    <when test="search.extraApplicationType != null and search.extraApplicationType.size() > 0">
+                        AND ap.application_type IN
+                        <foreach collection="search.extraApplicationType" item="item" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        and (ap.application_type = #{search.applicationType})
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="search.applicationNo != null and search.applicationNo != ''">
+                AND ap.application_no = #{search.applicationNo}
+            </if>
+            <if test="search.applicationType == 'doc'">
+                AND ai.id is not null
+            </if>
+            <if test="search.auditId != null">
+                AND ap.process_id = #{search.auditId}
+            </if>
+            <if test="search.applyUser!=null and  search.applyUser!=''">
+                AND ap.applicant_name like concat('%',#{search.applyUser},'%')
+            </if>
+            <if test="search.searchRequireTimeType !=null and search.searchRequireTimeType != ''">
+                and ap.require_time_type = #{search.searchRequireTimeType}
+            </if>
+            <if test="search.searchClient !=null and search.searchClient != ''">
+                and tc.short_name like concat('%',#{search.searchClient},'%')
+            </if>
+            <if test="search.searchReqiureAttr !=null and search.searchReqiureAttr != ''">
+                and ap.require_attr = #{search.searchReqiureAttr}
+            </if>
+            <if test="search.projectName !=null and search.projectName != ''">
+                and ap.project_name like concat('%', #{search.projectName} ,'%')
+            </if>
+            <if test="search.searchProcessStatus !=null and search.searchProcessStatus != ''">
+                and ap.current_audit_process_status = #{search.searchProcessStatus}
+            </if>
+            <if test="search.searchContent !=null and search.searchContent != ''">
+                and (ap.project_name like concat('%',#{search.searchContent},'%')
+                or ap.base_table_name like concat('%',#{search.searchContent},'%')
+                or ap.applicant_name like concat('%',#{search.searchContent},'%')
+                or ai.name like concat('%',#{search.searchContent},'%'))
+                or ti.table_alias like concat('%',#{search.searchContent},'%')
+            </if>
+        </where>
+        <if test="search.order != null and search.order == 'asc'">
+            order by ap.create_time asc
+        </if>
+        <if test="search.order == null or search.order == '' or search.order == 'desc'">
+            order by ap.create_time desc
+        </if>
+    </select>
+</mapper>

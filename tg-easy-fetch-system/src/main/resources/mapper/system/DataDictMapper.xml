@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.DataDictMapper">
+
+    <select id="queryOrgBriefName" resultType="java.util.Map">
+        SELECT * FROM `tg_org_brief_name` t
+        <where>
+            <if test="pathName != null and pathName != ''">
+                substring_index(t.org_path_text, '/', -2) = substring_index(#{pathName}, '/', -2)
+            </if>
+        </where>
+        limit 1
+    </select>
+
+
+</mapper>

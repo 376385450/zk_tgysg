@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.sinohealth</groupId>
+    <artifactId>tg-easy-fetch</artifactId>
+    <version>1.0.0</version>
+
+    <name>tg-easy-fetch</name>
+
+    <properties>
+        <bi-sdk.version>1.7.9_tgfetch-RELEASE</bi-sdk.version>
+        <dataplatform.version>1.0.0</dataplatform.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
+        <druid.version>1.1.24</druid.version>
+        <bitwalker.version>1.21</bitwalker.version>
+        <swagger.version>2.9.2</swagger.version>
+        <kaptcha.version>2.3.2</kaptcha.version>
+        <knife4j.version>2.0.8</knife4j.version>
+        <pagehelper.boot.version>1.3.0</pagehelper.boot.version>
+        <fastjson.version>1.2.75</fastjson.version>
+        <oshi.version>5.6.0</oshi.version>
+        <jna.version>5.7.0</jna.version>
+        <commons.io.version>2.5</commons.io.version>
+        <commons.fileupload.version>1.3.3</commons.fileupload.version>
+        <commons.collections.version>3.2.2</commons.collections.version>
+        <poi.version>4.1.2</poi.version>
+        <velocity.version>1.7</velocity.version>
+        <jwt.version>0.9.1</jwt.version>
+        <mybatis-plus.version>3.4.2</mybatis-plus.version>
+        <hutool.version>5.5.8</hutool.version>
+        <feign.version>2.2.6.RELEASE</feign.version>
+        <c3p0.version>0.9.1.2</c3p0.version>
+        <feign-okhttp.version>11.0</feign-okhttp.version>
+        <boot.version>2.3.12.RELEASE</boot.version>
+        <websocket.version>2.2.13.RELEASE</websocket.version>
+        <saas-office-service-api.version>1.0.2-SNAPSHOT</saas-office-service-api.version>
+        <spring-cloud-openfeign-core.version>2.2.10.RELEASE</spring-cloud-openfeign-core.version>
+    </properties>
+
+    <modules>
+        <module>tg-easy-fetch-admin</module>
+        <module>tg-easy-fetch-system</module>
+        <!--        <module>tg-easy-fetch-generator</module>-->
+        <module>tg-easy-fetch-common</module>
+        <module>tg-easy-fetch-quartz</module>
+        <module>tg-easy-fetch-api</module>
+        <module>tg-easy-fetch-asset</module>
+    </modules>
+
+    <packaging>pom</packaging>
+
+    <!-- 依赖声明 -->
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>20.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate.validator</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>6.0.13.Final</version>
+            </dependency>
+
+            <!-- SpringBoot的依赖配置-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <!--                <version>2.2.13.RELEASE</version>-->
+                <version>${boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-openfeign-core</artifactId>
+                <version>${spring-cloud-openfeign-core.version}</version>
+            </dependency>
+
+            <!--阿里数据库连接池 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
+
+            <!-- 解析客户端操作系统、浏览器等 -->
+            <dependency>
+                <groupId>eu.bitwalker</groupId>
+                <artifactId>UserAgentUtils</artifactId>
+                <version>${bitwalker.version}</version>
+            </dependency>
+
+            <!-- pagehelper 分页插件 -->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper.boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.mybatis</groupId>
+                        <artifactId>mybatis</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+                <version>${boot.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-extension</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!-- 获取系统信息 -->
+            <dependency>
+                <groupId>com.github.oshi</groupId>
+                <artifactId>oshi-core</artifactId>
+                <version>${oshi.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna</artifactId>
+                <version>${jna.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna-platform</artifactId>
+                <version>${jna.version}</version>
+            </dependency>
+
+            <!-- swagger2-->
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${swagger.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-models</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- swagger2-UI-->
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+
+            <!--io常用工具类 -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.io.version}</version>
+            </dependency>
+
+            <!--文件上传工具类 -->
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>${commons.fileupload.version}</version>
+            </dependency>
+
+            <!-- excel工具 -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+
+            <!--velocity代码生成使用模板 -->
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>${velocity.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-collections</groupId>
+                        <artifactId>commons-collections</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- collections工具类 -->
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons.collections.version}</version>
+            </dependency>
+
+            <!-- 阿里JSON解析器 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+
+            <!--Token生成与解析-->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>c3p0</groupId>
+                <artifactId>c3p0</artifactId>
+                <version>${c3p0.version}</version>
+            </dependency>
+            <!--验证码 -->
+            <dependency>
+                <groupId>com.github.penggle</groupId>
+                <artifactId>kaptcha</artifactId>
+                <version>${kaptcha.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-openfeign</artifactId>
+                <version>${feign.version}</version>
+            </dependency>
+
+
+            <!-- 代码生成-->
+            <dependency>
+                <groupId>com.sinohealth</groupId>
+                <artifactId>tg-easy-fetch-generator</artifactId>
+                <version>${dataplatform.version}</version>
+            </dependency>
+
+            <!-- 系统模块-->
+            <dependency>
+                <groupId>com.sinohealth</groupId>
+                <artifactId>tg-easy-fetch-system</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <!--            <dependency>-->
+            <!--                <groupId>org.apache.dolphinscheduler</groupId>-->
+            <!--                <artifactId>dolphinscheduler-api</artifactId>-->
+            <!--                <version>${dolphinscheduler-api.versoin}</version>-->
+            <!--            </dependency>-->
+
+            <!-- 通用工具-->
+            <dependency>
+                <groupId>com.sinohealth</groupId>
+                <artifactId>tg-easy-fetch-common</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+
+            <!-- 资产门户 web api包-->
+            <dependency>
+                <groupId>com.sinohealth</groupId>
+                <artifactId>tg-easy-fetch-api</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+
+            <!-- 资产门户 web 实现包-->
+            <dependency>
+                <groupId>com.sinohealth</groupId>
+                <artifactId>tg-easy-fetch-asset</artifactId>
+                <version>${dataplatform.version}</version>
+            </dependency>
+
+            <!-- 定时任务 -->
+            <dependency>
+                <groupId>com.sinohealth</groupId>
+                <artifactId>tg-easy-fetch-quartz</artifactId>
+                <version>${dataplatform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sinohealth.saas</groupId>
+                <artifactId>saas-office-service-api</artifactId>
+                <version>${saas-office-service-api.version}</version>
+            </dependency>
+
+            <!-- ipass sdk包 主数据-->
+            <dependency>
+                <groupId>com.sinohealth.sinoipaas</groupId>
+                <artifactId>main-data-sdk</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sinohealth.sinoipaas</groupId>
+                <artifactId>main-dept-client</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <!--        <repository>-->
+        <!--            <id>public</id>-->
+        <!--            <name>aliyun nexus</name>-->
+        <!--            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>-->
+        <!--            <releases>-->
+        <!--                <enabled>true</enabled>-->
+        <!--            </releases>-->
+        <!--        </repository>-->
+        <repository>
+            <id>nexus-releases</id>
+            <name>public</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>https://nexus3.sinohealth.cn/repository/Daas-Data-Platform-release/</url>
+        </repository>
+        <repository>
+            <id>snapshots</id>
+            <url>https://nexus3.sinohealth.cn/repository/Daas-Data-Platform-snapshot/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>snapshots-proxy</id>
+            <url>https://nexus3.sinohealth.cn/repository/Daas-Data-Platform-snapshot-proxy/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <name>Nexus Release Repository</name>
+            <uniqueVersion>false</uniqueVersion>
+            <url>https://nexus3.sinohealth.cn/repository/Daas-Data-Platform-release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>https://nexus3.sinohealth.cn/repository/Daas-Data-Platform-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>public</id>
+            <name>aliyun nexus</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>

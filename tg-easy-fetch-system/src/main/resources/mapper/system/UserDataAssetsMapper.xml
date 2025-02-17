@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.biz.dataassets.mapper.UserDataAssetsMapper">
+
+    <select id="pageMyAsset" resultType="com.sinohealth.system.biz.dataassets.dto.UserDataAssetResp">
+        select a.id as assetId,
+        a.src_application_id as applicationId,
+        a.require_attr,
+        i.application_no,
+        a.project_name as applicationName,
+        a.require_time_type,
+        a.data_expire,
+        u.real_name as applicantUser,
+        u.user_id,
+        temp.biz_type
+        from tg_user_data_assets a
+        left join tg_application_info i on a.src_application_id = i.id
+        left join sys_user u on i.applicant_id = u.user_id
+        left join tg_asset_info info on i.new_asset_id = info.id
+        left join tg_template_info temp on temp.id = info.related_id
+        where 1=1
+        AND a.status != 0
+        <if test="request.applicationName != null and request.applicationName != ''">
+            AND a.project_name like concat('%', #{request.applicationName} ,'%')
+        </if>
+        <if test="request.bizType != null and request.bizType != ''">
+            AND temp.biz_type = #{request.bizType}
+        </if>
+        <if test="request.excludeAssetIds != null and request.excludeAssetIds.size() > 0">
+            and a.id not in
+            <foreach collection="request.excludeAssetIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        AND a.data_expire > #{request.nowTime}
+        AND i.applicant_id = #{request.userId}
+    </select>
+
+    <select id="listAssets" resultType="com.sinohealth.system.biz.dataassets.dto.UserDataAssetResp">
+        select a.id as assetId,
+        a.src_application_id as applicationId,
+        a.require_attr,
+        i.application_no,
+        a.project_name as applicationName,
+        a.require_time_type,
+        a.data_expire,
+        i.project_id as assetProjectId,
+        a.copy_from_id,
+        u.real_name as applicantUser,
+        u.user_id,
+        temp.biz_type
+        from tg_user_data_assets a
+        left join tg_application_info i on a.src_application_id = i.id
+        left join sys_user u on i.applicant_id = u.user_id
+        left join tg_asset_info info on i.new_asset_id = info.id
+        left join tg_template_info temp on temp.id = info.related_id
+        where 1=1
+        and a.status = 1
+        and a.id in
+        <foreach collection="request.userDataAssetIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="pageQueryFlowAssets"
+            resultType="com.sinohealth.system.biz.dataassets.domain.entity.UsableDataAssetsEntity">
+        select a.id, a.template_id, a.project_name, a.applicant_id, a.applicant_name, i.create_time,
+        a.require_time_type, src_application_id, i.deliver_time_type,p.name newProjectName
+        from tg_user_data_assets a
+        join tg_application_info i on src_application_id = i.id
+        left join tg_project_data_assets_relate ar on a.id = ar.user_asset_id and ar.pro_type='master'
+        left join tg_project p on p.id = ar.project_id
+        left join tg_application_form f on i.application_no = f.application_no
+
+        where a.data_expire > now() and a.deprecated = 0 and a.copy_from_id is null
+        and f.apply_state in ('normal')
+        and (a.config_type is null or a.config_type != 2)
+        <if test="request.templateIds != null and request.templateIds.size() > 0">
+            and a.template_id in
+            <foreach collection="request.templateIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="request.projectName != null and request.projectName != ''">
+            AND (a.project_name like concat('%', #{request.projectName} ,'%')
+            OR p.name like concat('%', #{request.projectName} ,'%') )
+        </if>
+        <if test="request.requireTimeType != null">
+            AND a.require_time_type = #{request.requireTimeType}
+        </if>
+        <if test="request.deliverTimeType != null">
+            AND i.deliver_time_type = #{request.deliverTimeType}
+        </if>
+
+        order by i.create_time desc
+
+    </select>
+
+
+    <select id="pageQueryFlowAssetsForAuto"
+            resultType="com.sinohealth.system.biz.dataassets.domain.entity.UsableDataAssetsEntity">
+        select a.id, a.template_id, a.project_name, a.applicant_id, a.applicant_name, i.create_time,
+        a.require_time_type, src_application_id, i.deliver_time_type,p.name newProjectName
+        from tg_user_data_assets a
+        join tg_application_info i on src_application_id = i.id
+        left join tg_project_data_assets_relate ar on a.id = ar.user_asset_id and ar.pro_type='master'
+        left join tg_project p on p.id = ar.project_id
+        left join tg_application_form f on i.application_no = f.application_no
+
+        where a.data_expire > now() and a.deprecated = 0 and a.copy_from_id is null
+        and f.apply_state in ('normal')
+        and (a.config_type is null or a.config_type != 2)
+        <if test="request.templateIds != null and request.templateIds.size() > 0">
+            and a.template_id in
+            <foreach collection="request.templateIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+
+        <if test="request.applyIds != null and request.applyIds.size > 0">
+            and i.id in
+            <foreach collection='request.applyIds' item='id' open='(' separator=',' close=')'>
+                #{id}
+            </foreach>
+        </if>
+
+        <if test="request.projectName != null and request.projectName != ''">
+            AND (a.project_name like concat('%', #{request.projectName} ,'%')
+            OR p.name like concat('%', #{request.projectName} ,'%') )
+        </if>
+
+        <if test="request.requireTimeType != null and request.requireTimeType.size() > 0">
+            and a.require_time_type in
+            <foreach collection="request.requireTimeType" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+
+        <if test="request.deliverTimeType != null and request.deliverTimeType.size() > 0">
+            and i.deliver_time_type in
+            <foreach collection="request.deliverTimeType" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+
+        order by i.create_time desc
+
+    </select>
+
+</mapper>

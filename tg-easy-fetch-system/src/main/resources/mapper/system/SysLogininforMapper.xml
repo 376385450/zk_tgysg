@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.SysLogininforMapper">
+
+    <resultMap type="SysLogininfor" id="SysLogininforResult">
+        <id property="infoId" column="info_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="status" column="status"/>
+        <result property="ipaddr" column="ipaddr"/>
+        <result property="loginLocation" column="login_location"/>
+        <result property="browser" column="browser"/>
+        <result property="os" column="os"/>
+        <result property="msg" column="msg"/>
+        <result property="loginTime" column="login_time"/>
+    </resultMap>
+
+
+    <select id="countByOrgUserId" resultType="java.util.Map">
+        select b.org_user_id,
+        count(a.info_id)
+        from sys_logininfor a
+        left join sys_user b on a.user_name = b.user_name or a.user_name = b.phonenumber
+        where b.org_user_id is not null
+        and b.org_user_id != ''
+        and a.status=0
+        and a.msg='登录成功'
+        <if test="startTime!=null and endTime!=null">
+            and a.login_time between #{startTime} and #{endTime}
+        </if>
+        group by org_user_id
+    </select>
+
+    <select id="countByDayOrMonth" resultType="com.sinohealth.system.dto.DataStatisticsDTO">
+        select DATE_FORMAT(login_time, #{dateFormat}) as `date`,count(distinct user_name) as `count` from sys_logininfor
+        where 1=1
+        <if test="startTime!=null and endTime!=null">
+            and login_time between #{startTime} and #{endTime}
+        </if>
+        and status=0
+        and msg='登录成功'
+        group by `date`
+    </select>
+
+    <select id="countDepByDayOrMonth" resultType="com.sinohealth.system.dto.DataStatisticsDTO">
+        select
+        DATE_FORMAT(a.login_time, #{dateFormat}) as `date`,
+        0 as count,
+        GROUP_CONCAT(distinct b.org_user_id) as `orgUserIds`
+        from sys_logininfor a
+        left join sys_user b on a.user_name = b.user_name or a.user_name = b.phonenumber
+        where
+        b.org_user_id is not null
+        and b.org_user_id !=''
+        <if test="startTime!=null and endTime!=null">
+            and a.login_time between #{startTime} and #{endTime}
+        </if>
+        and a.status=0
+        and a.msg='登录成功'
+        group by `date`
+    </select>
+
+    <select id="queryLoginInfoByPage" resultType="com.sinohealth.system.dto.TgLoginInfoDTO">
+        select a.login_time as `createTime`, a.user_name as `applicantName`, b.org_user_id as `orgUserId`,
+        DATE_FORMAT(a.login_time,'%Y-%m-%d') as tmp
+        from sys_logininfor a
+        left join sys_user b on a.user_name = b.user_name or a.user_name = b.phonenumber
+        where 1=1
+        and a.status=0
+        and a.msg ='登录成功'
+        <if test="startTime!=null and endTime!=null">
+            and a.login_time between #{startTime} and #{endTime}
+        </if>
+        <if test="userIds.size()>0">
+            and b.user_id in
+            <foreach item='item' collection='userIds' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+        group by tmp,a.user_name
+        order by a.info_id desc
+    </select>
+
+    <select id="countDua" resultType="java.lang.Integer">
+        select COUNT(distinct a.user_name) from sys_logininfor a
+        where 1=1
+        <if test="startTime!=null and endTime!=null">
+            and a.login_time between #{startTime} and #{endTime}
+        </if>
+        and a.status=0
+        and a.msg ='登录成功'
+    </select>
+</mapper> 

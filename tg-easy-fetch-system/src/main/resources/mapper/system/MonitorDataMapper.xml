@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.monitor.mapper.MonitorDataMapper">
+
+    <select id="groupByCustomerAuthView" resultType="java.util.Map">
+        select subject_id as authId, count(*) as total
+        from event_log
+        where subject_id in <foreach collection="authIds" item="item" open="(" separator="," close=")">#{item}</foreach>
+        and event_type = 'OPERATE' and operate_type = 'QUERY' and `subject_type` = 'customer' and `second_subject_type` = 'customer_auth_view'
+        and user_id = #{userId}
+        group by subject_id
+    </select>
+</mapper>

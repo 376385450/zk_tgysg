@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TableLogMapper">
+    
+    <resultMap type="TableLog" id="TableLogResult">
+        <result property="id"    column="id"    />
+        <result property="tableId"    column="table_id"    />
+        <result property="tableName"    column="table_name"    />
+        <result property="tableAlias"    column="table_alias"    />
+        <result property="dirId"    column="dir_id"    />
+        <result property="dirPath"    column="dir_path"    />
+        <result property="type"    column="type"    />
+        <result property="dataCount"    column="data_count"    />
+        <result property="comment"    column="comment"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="operatorId"    column="operator_id"    />
+        <result property="operator"    column="operator"    />
+    </resultMap>
+
+    <sql id="selectTableLogVo">
+        select id, table_id, table_name, table_alias, dir_id, dir_path, type, data_count, comment, create_time, operator_id, operator from table_log
+    </sql>
+
+    <select id="selectTableLogList" parameterType="TableLog" resultMap="TableLogResult">
+        <include refid="selectTableLogVo"/>
+        <where>  
+            <if test="tableId != null "> and table_id = #{tableId}</if>
+            <if test="tableName != null  and tableName != ''"> and table_name like concat('%', #{tableName}, '%')</if>
+            <if test="tableAlias != null  and tableAlias != ''"> and table_alias = #{tableAlias}</if>
+            <if test="dirId != null "> and dir_id = #{dirId}</if>
+            <if test="dirPath != null  and dirPath != ''"> and dir_path = #{dirPath}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="dataCount != null "> and data_count = #{dataCount}</if>
+            <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
+            <if test="operatorId != null "> and operator_id = #{operatorId}</if>
+            <if test="operator != null  and operator != ''"> and operator = #{operator}</if>
+        </where>
+    </select>
+    
+    <select id="selectTableLogById" parameterType="Long" resultMap="TableLogResult">
+        <include refid="selectTableLogVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTableLog" parameterType="TableLog">
+        insert into table_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="tableId != null">table_id,</if>
+            <if test="tableName != null and tableName != ''">table_name,</if>
+            <if test="tableAlias != null">table_alias,</if>
+            <if test="dirId != null">dir_id,</if>
+            <if test="dirPath != null and dirPath != ''">dir_path,</if>
+            <if test="type != null and type != ''">type,</if>
+            <if test="dataCount != null">data_count,</if>
+            <if test="comment != null">comment,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="operatorId != null">operator_id,</if>
+            <if test="operator != null">operator,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="tableId != null">#{tableId},</if>
+            <if test="tableName != null and tableName != ''">#{tableName},</if>
+            <if test="tableAlias != null">#{tableAlias},</if>
+            <if test="dirId != null">#{dirId},</if>
+            <if test="dirPath != null and dirPath != ''">#{dirPath},</if>
+            <if test="type != null and type != ''">#{type},</if>
+            <if test="dataCount != null">#{dataCount},</if>
+            <if test="comment != null">#{comment},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="operatorId != null">#{operatorId},</if>
+            <if test="operator != null">#{operator},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTableLog" parameterType="TableLog">
+        update table_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tableId != null">table_id = #{tableId},</if>
+            <if test="tableName != null and tableName != ''">table_name = #{tableName},</if>
+            <if test="tableAlias != null">table_alias = #{tableAlias},</if>
+            <if test="dirId != null">dir_id = #{dirId},</if>
+            <if test="dirPath != null and dirPath != ''">dir_path = #{dirPath},</if>
+            <if test="type != null and type != ''">type = #{type},</if>
+            <if test="dataCount != null">data_count = #{dataCount},</if>
+            <if test="comment != null">comment = #{comment},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="operatorId != null">operator_id = #{operatorId},</if>
+            <if test="operator != null">operator = #{operator},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTableLogById" parameterType="Long">
+        delete from table_log where id = #{id}
+    </delete>
+
+    <delete id="deleteTableLogByIds" parameterType="String">
+        delete from table_log where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

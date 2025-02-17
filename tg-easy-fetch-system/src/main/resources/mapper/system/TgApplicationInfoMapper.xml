@@ -1,0 +1,856 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TgApplicationInfoMapper">
+
+
+    <select id="queryApplicationByApplicantIdAndApplicationId"
+            resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        select *
+        from tg_application_info
+        where id = #{applicationId}
+          and applicant_id = #{applicantId}
+    </select>
+
+    <select id="queryApplicationByApplicantId" resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        select *
+        from tg_application_info
+        where application_type = #{applicantType}
+          and applicant_id = #{applicantId}
+
+    </select>
+
+    <select id="queryDistinctTableIdByApplicantId" resultType="java.lang.Long">
+        select distinct base_table_id
+        from tg_application_info
+        where application_type = #{applicantType}
+          and applicant_id = #{applicantId}
+    </select>
+
+
+    <select id="queryApplicationByApplicantIdAndName" resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        select *
+        from tg_application_info
+        where application_type = #{applicantType}
+          and project_name = #{projectName}
+          and current_audit_status = #{auditStatus}
+          and applicant_id = #{applicantId}
+    </select>
+
+    <select id="queryApplicationByProjectName" resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        select *
+        from tg_application_info
+        where project_name = #{projectName}
+          and current_audit_process_status = 2
+    </select>
+
+    <update id="updateOutTableName">
+        update tg_application_info
+        set out_table_name = #{outTableName}
+        where id = #{id}
+    </update>
+
+    <select id="queryApplication" resultType="com.sinohealth.system.biz.application.dto.TgUserDataAssetsDistDto">
+        select a.*,
+        CASE WHEN COALESCE(data_expir,'') != '' AND DATE_FORMAT(NOW(),'%Y-%m-%d') > data_expir THEN '已过期'
+        ELSE '未过期' END AS 'validityStatus', b.table_name
+        from tg_application_info a
+        left join table_info b on a.base_table_id = b.id
+        left join sys_user c on a.applicant_id = c.user_id
+        left join sys_user d on a.owner_id = d.user_id
+        <where>
+            a.application_type = 'data'
+            AND a.current_audit_process_status = 2
+            <if test="projectName !=null and  projectName !='' ">
+                and (
+                a.project_name like CONCAT('%', #{projectName}, '%')
+                or b.table_name like CONCAT('%', #{projectName}, '%')
+                or c.real_name like CONCAT('%', #{projectName}, '%')
+                or d.real_name like CONCAT('%', #{projectName}, '%')
+                )
+            </if>
+
+            <if test="requireAttr !=null and  requireAttr !='' ">
+                and a.require_attr = #{requireAttr}
+            </if>
+            <if test="id !=null  ">
+                and a.id = #{id}
+            </if>
+            <if test="clientNames !=null and clientNames !=''">
+                and a.client_names = #{clientNames}
+            </if>
+            <if test="requireTimeType !=null ">
+                and a.require_time_type = #{requireTimeType}
+            </if>
+            <if test="validityStatus != null and validityStatus !=''">
+                <choose>
+                    <when test="validityStatus == '已过期'">
+                        and DATE_FORMAT(NOW(),'%Y-%m-%d') &gt; data_expir
+                    </when>
+                    <otherwise>
+                        and DATE_FORMAT(NOW(),'%Y-%m-%d') &lt;= data_expir
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        ORDER BY a.create_time DESC
+    </select>
+
+
+    <select id="pageHistoryQuote" resultType="com.sinohealth.system.biz.application.entity.HistoryApplyQuoteEntity">
+        select * from (
+        <if test="param.projectId != null and param.projectName==null">
+            (SELECT a.id,
+            a.project_name as apply_name,
+            a.application_no,
+            a.current_audit_process_status,
+            a.create_time,
+            a.applicant_name as applicant,
+            a.project_id,
+            p.name as project_name,
+            m.id as template_id,
+            m.biz_type,
+            m.template_name,
+            1 as sort_
+            FROM tg_application_info a
+            left join tg_project p on a.project_id = p.id
+            left join tg_template_info m on a.template_id= m.id
+
+            WHERE a.application_type = 'data'
+            AND a.project_id = #{param.projectId}
+            <if test="param.applyName != null and param.applyName !=''">
+                AND a.project_name LIKE concat('%',#{param.applyName},'%' )
+            </if>
+            <if test="param.state != null">
+                AND a.current_audit_process_status = #{param.state}
+            </if>
+            )
+            union all
+        </if>
+        (
+        SELECT a.id,
+        a.project_name as apply_name,
+        a.application_no,
+        a.current_audit_process_status,
+        a.create_time,
+        a.applicant_name as applicant,
+        a.project_id,
+        p.name as project_name,
+        m.id as template_id,
+        m.biz_type,
+        m.template_name,
+        2 as sort_
+        FROM tg_application_info a
+        left join tg_project p on a.project_id = p.id
+        left join tg_template_info m on a.template_id= m.id
+
+        WHERE a.application_type = 'data'
+        AND a.project_id in
+        <foreach collection='param.projectIds' item='id' open='(' separator=',' close=')'>
+            #{id}
+        </foreach>
+
+        <if test="param.applyName != null and param.applyName !=''">
+            AND a.project_name LIKE concat('%',#{param.applyName},'%' )
+        </if>
+        <if test="param.state != null">
+            AND a.current_audit_process_status = #{param.state}
+        </if>
+        )
+        ) x
+        ORDER BY x.sort_, x.project_id, x.create_time DESC
+
+    </select>
+
+    <select id="queryAssetsDistList" resultType="com.sinohealth.system.biz.application.dto.TgUserDataAssetsDistDto">
+        select
+        a.`id`,
+        a.`template_id`,
+        a.`applicant_id`,
+        a.`applicant_name`,
+        a.`project_name`,
+        a.`require_attr`,
+        a.`require_time_type`,
+        a.deliver_time_type,
+        a.`data_expir`,
+        a.`asql`,
+        a.tail_sql,
+        a.`status`,
+        a.`current_audit_status`,
+        a.`create_time`,
+        a.`update_time`,
+        a.`process_id`,
+        a.`base_table_id`,
+        a.`base_table_name`,
+        a.`current_audit_process_status`,
+        a.`current_audit_node_status`,
+        a.`apply_type`,
+        a.`application_type`,
+        a.`project_id`,
+        a.`assets_id`,
+        a.`new_asset_id`,
+        a.`expect_delivery_time`,
+        a.`assets_create_time`,
+        a.`application_no`,
+        a.config_type,
+        t.template_name,
+        t.template_type,
+        t.scheduler_id,
+        a.config_sql,
+        a.config_sql_workflow_id,
+        a.workflow_id,
+        a.data_amount,
+        a.data_cost_min,
+        a.data_cost,
+        a.data_state,
+        a.relate_dict,
+        a.assets_attach_json,
+        a.handle_node_json,
+        a.current_index,
+        a.current_handlers,
+        f.period,
+        f.apply_state,
+        f.apply_run_state,
+        a.product_gra,
+        a.time_gra,
+        p.name as 'newProjectName', t.biz_type, c.short_name as 'clientNames', b.table_name
+        from tg_application_form f
+        join tg_application_info a on a.id = f.application_id
+        left join table_info b on a.base_table_id = b.id
+        left join tg_project p on a.project_id = p.id
+        left join tg_template_info t on a.template_id = t.id
+        left join t_customer c on c.id = p.customer_id
+        <where>
+            a.application_type = 'data'
+            <if test="param.search !=null and param.search !='' ">
+                and (
+                a.project_name like CONCAT('%', #{param.search}, '%')
+                or p.name like CONCAT('%', #{param.search}, '%')
+                or c.short_name like CONCAT('%', #{param.search}, '%')
+                )
+            </if>
+            <if test="param.bizType != null and param.bizType.size > 0">
+                and t.biz_type in
+                <foreach collection='param.bizType' item='id' open='(' separator=',' close=')'>
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.applyState != null and param.applyState.size > 0">
+                and f.apply_state in
+                <foreach collection='param.applyState' item='id' open='(' separator=',' close=')'>
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.applyRunState != null and param.applyRunState.size > 0">
+                and f.apply_run_state in
+                <foreach collection='param.applyRunState' item='id' open='(' separator=',' close=')'>
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.requireAttr !=null and param.requireAttr.size > 0 ">
+                and a.require_attr in
+                <foreach collection="param.requireAttr" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+
+            <if test="param.id !=null  ">
+                and a.id = #{param.id}
+            </if>
+            <if test="param.requireTimeType !=null ">
+                and a.require_time_type = #{param.requireTimeType}
+            </if>
+            <if test="param.startTime != null and param.endTime != null">
+                and a.create_time between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.timeGra != null and param.timeGra.size > 0">
+                and (1=0 or
+                <foreach collection='param.timeGra' item='id' open='' separator='or' close=''>
+                    a.time_gra like CONCAT('%__', #{id}, '%__')
+                </foreach>
+                )
+            </if>
+        </where>
+        ORDER BY a.create_time DESC
+    </select>
+
+
+    <select id="querySearchTableSource" resultType="java.lang.String">
+        select distinct base_table_name
+        from tg_application_info
+        where applicant_id = #{applicantId}
+    </select>
+
+    <select id="getTopResources" resultType="java.util.Map">
+        select *
+        from (select base_table_name displayName, count(*) applyTimes, 'table' icon
+              from tg_application_info a
+              where a.create_time &gt; date_sub(now(), interval 1 month)
+              group by a.base_table_name
+              union all
+              select di.name displayName, count(*) applyTimes, 'doc' icon
+              from tg_application_info a
+                       join tg_doc_info di on a.doc_id = di.id
+              where a.create_time &gt; date_sub(now(), interval 1 month)
+              group by di.name) a
+        where a.displayName != ''
+        order by applyTimes desc
+        limit ${parameterMap.topNum}
+    </select>
+    <select id="listAllNormalDataApplications" resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        select * from tg_application_info a
+        where
+        a.application_type = 'data'
+        and a.status = 1
+        and a.current_audit_process_status = 2
+        and a.data_expir > now()
+        <if test="assetIds != null and assetIds.size() >0">
+            and a.new_asset_id in
+            <foreach item='item' index='index' collection='assetIds' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <update id="updateApplicantId">
+        update tg_application_info
+        set applicant_id = #{newUserId}
+        where applicant_id = #{userId}
+    </update>
+
+    <update id="updateNeedSyncTagByTableName">
+        update tg_application_info
+        set need_sync_tag = 0
+        where #{tn} != ''
+          AND FIND_IN_SET(#{tn}, all_table_names) != 0
+    </update>
+
+    <select id="getApplicantCount" resultType="com.sinohealth.system.biz.homePage.HotAssetsDTO">
+        <if test="source != null">
+            <choose>
+                <when test="source == 1">
+                </when>
+                <otherwise>
+                    select tgai.id, tgai.asset_name, IFNULL(tmp.count, 0) as count from tg_asset_info tgai left join (
+                </otherwise>
+            </choose>
+        </if>
+        select i.id, i.asset_name as assetName, count(1) as count
+        from tg_application_info t
+        left join tg_asset_info i on t.new_asset_id = i.id
+        where t.new_asset_id is not null
+        and t.current_audit_process_status != 0
+        <if test="id != null and id != ''">
+            and t.new_asset_id = #{id}
+        </if>
+        <if test="catalogueIds != null and catalogueIds.size() >0">
+            and i.asset_menu_id in
+            <foreach item='item' index='index' collection='catalogueIds' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+        and i.id is not null
+        and i.shelf_state = '已上架'
+        and i.deleted = 0
+        and t.create_time >= #{createdTime}
+        group by t.new_asset_id order by count
+        <if test="source != null">
+            <choose>
+                <when test="source == 1">
+                    desc
+                </when>
+                <otherwise>
+                    asc, i.create_time asc
+                    ) tmp on tgai.id = tmp.id
+                    where tgai.id is not null
+                    <if test="catalogueIds != null and catalogueIds.size() >0">
+                        and tgai.asset_menu_id in
+                        <foreach item='item' index='index' collection='catalogueIds' open='(' separator=',' close=')'>
+                            #{item}
+                        </foreach>
+                    </if>
+                    and tgai.shelf_state = '已上架'
+                    and tgai.deleted = 0
+                    order by count
+                    asc, tgai.create_time asc
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="groupByProject" resultType="map">
+        select project_id, count(*) as amount
+        from tg_application_info
+        where project_id in
+        <foreach collection="projectIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        group by project_id
+    </select>
+
+    <select id="queryLastProjectName" resultType="com.sinohealth.system.biz.application.dto.LatestProjectDto">
+        select MAX(id) id, project_name
+        FROM tg_application_info
+        WHERE application_type ='data' AND applicant_id = #{userId} AND copy_from_id IS NULL
+        <if test="templateId != null">
+            AND template_id = #{templateId}
+        </if>
+        GROUP BY project_name
+    </select>
+
+    <select id="findByDiffType" resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        select * from tg_application_info a
+        where 1=1
+        <if test="moduleIds != null and moduleIds.size() > 0">
+            and template_id in
+            <foreach collection="moduleIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="pageQueryTableApplication" resultType="com.sinohealth.system.vo.ApplicationManageTableListVo">
+        SELECT
+        app.id as applyId,
+        asset.id as assetId,
+        asset.asset_name,
+        '数据查询' as serviceType,
+        app.apply_reason,
+        date_format(app.data_expir, '%Y-%m-%d') as expireDate,
+        app.applicant_name,
+        date_format(app.create_time, '%Y-%m-%d %H:%i:%s') as applyDate,
+        app.apply_type,
+        app.current_handlers,
+        app.current_audit_process_status AS processStatus,
+        app.current_index,
+        app.handle_node_json
+        FROM tg_application_info app
+        LEFT JOIN tg_asset_info asset
+        ON app.assets_id = asset.id
+        WHERE
+        asset.type = 'TABLE'
+        AND app.applicant_id = #{userId}
+        AND app.current_audit_process_status in
+        <foreach collection="pageRequest.processStatusList" item="status" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        <if test="pageRequest.assetName != null and pageRequest.assetName != ''">
+            and asset.asset_name LIKE concat('%', #{pageRequest.assetName}, '%')
+        </if>
+        order by app.create_time ${pageRequest.order}
+    </select>
+
+    <select id="pageQueryFileApplication" resultType="com.sinohealth.system.vo.ApplicationManageFileListVo">
+        SELECT
+        app.id as applyId,
+        asset.id as assetId,
+        asset.asset_name,
+        '数据查询' AS serviceType,
+        app.apply_reason,
+        date_format(app.data_expir, '%Y-%m-%d') AS expireDate,
+        app.applicant_name,
+        date_format(app.create_time, '%Y-%m-%d %H:%i:%s') AS applyDate,
+        app.apply_type,
+        app.current_handlers,
+        app.current_audit_process_status AS processStatus,
+        app.current_index,
+        app.handle_node_json,
+        app.doc_authorization_json
+        FROM tg_application_info app
+        LEFT JOIN tg_asset_info asset
+        ON app.assets_id = asset.id
+        WHERE
+        asset.type = 'FILE'
+        AND app.applicant_id = #{userId}
+        AND app.current_audit_process_status IN
+        <foreach collection="pageRequest.processStatusList" item="status" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        <if test="pageRequest.assetName != null and pageRequest.assetName != ''">
+            AND asset.asset_name LIKE concat('%', #{pageRequest.assetName}, '%')
+        </if>
+        order by app.create_time ${pageRequest.order}
+    </select>
+
+    <select id="pageQueryModelApplication" resultType="com.sinohealth.system.vo.ApplicationManageModelListVo">
+        SELECT
+        app.id as applyId,
+        asset.id as assetId,
+        app.project_name as demandName,
+        project.name as projectName,
+        asset.asset_name,
+        app.require_attr,
+        app.client_names,
+        app.require_time_type,
+        date_format(app.data_expir, '%Y-%m-%d') AS expireDate,
+        app.applicant_name,
+        date_format(app.create_time, '%Y-%m-%d %H:%i:%s') AS applyDate,
+        app.apply_type,
+        app.current_handlers,
+        app.current_audit_process_status AS processStatus,
+        record.state as dataAcceptStatus,
+        app.current_index,
+        app.handle_node_json,
+        app.doc_authorization_json
+        FROM tg_application_info app
+        LEFT JOIN tg_asset_info asset
+        ON app.assets_id = asset.id
+        LEFT JOIN tg_project project on app.project_id = project.id
+        LEFT JOIN tg_acceptance_record record on app.id = record.application_id
+        WHERE
+        asset.type = 'MODEL'
+        AND app.applicant_id = #{userId}
+        AND app.current_audit_process_status IN
+        <foreach collection="pageRequest.processStatusList" item="status" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+        <if test="pageRequest.assetName != null and pageRequest.assetName != ''">
+            AND asset.asset_name LIKE concat('%', #{pageRequest.assetName}, '%')
+        </if>
+        <if test="pageRequest.requireAttr != null">
+            AND app.require_attr = #{pageRequest.requireAttr}
+        </if>
+        <if test="pageRequest.clientNames != null and pageRequest.clientNames != ''">
+            AND app.client_names LIKE concat('%', #{pageRequest.clientNames}, '%')
+        </if>
+        <if test="pageRequest.requireTimeType != null and pageRequest.requireTimeType != ''">
+            AND app.require_time_type = #{pageRequest.requireTimeType}
+        </if>
+        order by app.create_time ${pageRequest.order}
+    </select>
+
+    <select id="getValidApplicationByAssetIdAndUserId"
+            resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        select *
+        from tg_application_info
+        where applicant_id = ${userId}
+          and new_asset_id = ${assetId}
+          and #{currentTime} &lt; data_expir
+          and current_audit_process_status = 2
+    </select>
+
+
+    <select id="getValidApplicationByAssetIdsAndUserId"
+            resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        select * from tg_application_info
+        where applicant_id = ${userId}
+        <if test="assetIds != null and assetIds.size()>0">
+            and new_asset_id in
+            <foreach collection="assetIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        and #{currentTime} &lt; data_expir
+        and current_audit_process_status = 2
+    </select>
+
+    <select id="queryUsefulApplicationInfo" resultType="com.sinohealth.system.domain.TgApplicationInfo">
+        select tai.id as id, tai.applicant_id, tai.application_type
+        from tg_application_info tai
+        left join tg_asset_info tti on tai.new_asset_id = tti.id
+        where tai.new_asset_id is not null
+        and tai.current_audit_process_status != 0
+        and tti.deleted = 0
+        <if test="catalogueIds != null and catalogueIds.size()>0">
+            AND tti.asset_menu_id IN
+            <foreach collection="query.userIds" item="catalogueIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        and tti.shelf_state = '已上架'
+    </select>
+
+    <select id="countByRequireAttr" resultType="java.util.Map">
+        select a.require_attr, count(a.id) as count
+        from tg_application_info a
+        left join tg_asset_info b on a.new_asset_id = b.id
+        where
+        a.require_attr is not null
+        and a.new_asset_id is not null
+        and a.current_audit_process_status = 2
+        <if test="startTime!=null and endTime!=null">
+            and a.apply_passed_time between #{startTime} and #{endTime}
+        </if>
+        <if test="assetMenuId!=null and assetMenuId!=0">
+            and b.asset_menu_id in(
+            with recursive t1 as (select id,parent_id
+            from assets_catalogue
+            where id = #{assetMenuId}
+            and `deleted` = 0
+            union all
+            select t.id,t.parent_id
+            from assets_catalogue t
+            inner join t1 on t1.id = t.parent_id and t.deleted = 0)
+            select id from t1 where parent_id is not null)
+        </if>
+        group by a.require_attr;
+    </select>
+
+    <select id="countByRequireTimeType" resultType="java.util.Map">
+        select a.require_time_type, count(a.id) as count
+        from tg_application_info a
+        left join tg_asset_info b on a.new_asset_id = b.id
+        where a.require_time_type is not null
+        and a.new_asset_id is not null
+        and a.current_audit_process_status = 2
+        <if test="startTime!=null and endTime!=null">
+            and a.apply_passed_time between #{startTime} and #{endTime}
+        </if>
+        <if test="isPassed !=null">
+            and a.current_audit_process_status = 2
+        </if>
+        <if test="assetMenuId!=null and assetMenuId!=0">
+            and b.asset_menu_id in(
+            with recursive t1 as (select id,parent_id
+            from assets_catalogue
+            where id = #{assetMenuId}
+            and `deleted` = 0
+            union all
+            select t.id,t.parent_id
+            from assets_catalogue t
+            inner join t1 on t1.id = t.parent_id and t.deleted = 0)
+            select id from t1 where parent_id is not null)
+        </if>
+        group by a.require_time_type;
+    </select>
+
+
+    <select id="countPassedApplicationByConditions" resultType="com.sinohealth.system.dto.DataStatisticsDTO">
+        select
+        b.org_user_id as `orgUserIds`,
+        COUNT(a.id) as `count`,
+        c.type as `type`
+        from tg_application_info a
+        left join sys_user b on a.applicant_id = b.user_id
+        left join tg_asset_info c on a.new_asset_id = c.id
+        where
+        a.current_audit_process_status = 2
+        and a.new_asset_id is not null
+        and b.org_user_id is not null
+        and b.org_user_id != ''
+        <if test="startTime!=null and endTime!=null">
+            and a.apply_passed_time between #{startTime} and #{endTime}
+        </if>
+        <if test="userIds !=null and userIds.size()>0">
+            and b.org_user_id in
+            <foreach item='item' collection='userIds' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+        <if test="assetType !=null and assetType!=''">
+            and c.type = #{assetType}
+        </if>
+        <if test="assetMenuId!=null and assetMenuId!=0">
+            and c.asset_menu_id in(
+            with recursive t1 as (select id,parent_id
+            from assets_catalogue
+            where id = #{assetMenuId}
+            and `deleted` = 0
+            union all
+            select t.id,t.parent_id
+            from assets_catalogue t
+            inner join t1 on t1.id = t.parent_id and t.deleted = 0)
+            select id from t1 where parent_id is not null)
+        </if>
+        group by b.org_user_id
+        <if test="groupByType!=null and groupByType ==true">
+            ,c.type
+        </if>
+    </select>
+
+    <select id="queryApplicationInfoByPage" resultType="com.sinohealth.system.dto.TgApplicationInfoDTOV2">
+        select a.apply_passed_time as `createTime`,
+        a.applicant_name,
+        a.applicant_department,
+        a.project_name,
+        b.type as `assetType`,
+        b.asset_menu_id,
+        b.asset_name,
+        a.permission_json as `serviceType`,
+        d.org_user_id,
+        CONCAT_WS('/',f.name, c.name) as menuName
+        from tg_application_info a
+        left join tg_asset_info b on a.new_asset_id = b.id
+        left join assets_catalogue c on b.asset_menu_id = c.id
+        left join sys_user d on a.applicant_id = d.user_id
+        left join assets_catalogue f on c.parent_id = f.id
+        where
+        a.current_audit_process_status = 2
+        and a.new_asset_id is not null
+        <if test="userIds.size()>0">
+            and a.applicant_id in
+            <foreach item='item' collection='userIds' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+        <if test="startTime != null and endTime !=null">
+            and a.apply_passed_time between #{startTime} and #{endTime}
+        </if>
+        <if test="assetType !=null and assetType!=''">
+            and b.type = #{assetType}
+        </if>
+        <if test="assetName !=null and assetName!=''">
+            and b.asset_name like concat('%', #{assetName}, '%')
+        </if>
+        <if test="assetMenuName !=null and assetMenuName!=''">
+            and CONCAT_WS('/',f.name, c.name) like concat('%', #{assetMenuName}, '%')
+        </if>
+        <if test="assetMenuId!=null and assetMenuId!=0">
+            and b.asset_menu_id in(
+            with recursive t1 as (select id,parent_id
+            from assets_catalogue
+            where id = #{assetMenuId}
+            and `deleted` = 0
+            union all
+            select t.id,t.parent_id
+            from assets_catalogue t
+            inner join t1 on t1.id = t.parent_id and t.deleted = 0)
+            select id from t1 where parent_id is not null
+            )
+        </if>
+        order by a.apply_passed_time desc
+    </select>
+
+    <select id="countUserDataAsset" resultType="com.sinohealth.system.dto.DataStatisticsDTO">
+        select
+        DATE_FORMAT(t.create_time, #{dateFormat}) as `date`,
+        COUNT(*) as count
+        from (
+        select
+        a.id,
+        a.update_time as `create_time`
+        from tg_user_data_assets a
+        left join tg_application_info b on a.src_application_id = b.id
+        left join tg_asset_info c on b.new_asset_id = c.id
+        where 1=1
+        and b.new_asset_id is not null
+        <if test="startTime!=null and endTime!=null">
+            and a.update_time between #{startTime} and #{endTime}
+        </if>
+        <if test="type!=null and type!=''">
+            and c.type = #{type}
+        </if>
+        <if test="assetMenuId!=null and assetMenuId!=0">
+            and c.asset_menu_id in(
+            with recursive t1 as (select id,parent_id
+            from assets_catalogue
+            where id = #{assetMenuId}
+            and `deleted` = 0
+            union all
+            select t.id,t.parent_id
+            from assets_catalogue t
+            inner join t1 on t1.id = t.parent_id and t.deleted = 0)
+            select id from t1 where parent_id is not null
+            )
+        </if>
+        union all
+        select
+        a.id,
+        a.create_time
+        from tg_user_data_assets_snapshot a
+        left join tg_application_info b on a.src_application_id = b.id
+        left join tg_asset_info c on b.new_asset_id = c.id
+        where 1=1
+        <if test="startTime!=null and endTime!=null">
+            and a.create_time between #{startTime} and #{endTime}
+        </if>
+        <if test="type!=null and type!=''">
+            and c.type = #{type}
+        </if>
+        <if test="assetMenuId!=null and assetMenuId!=0">
+            and c.asset_menu_id in(
+            with recursive t1 as (select id,parent_id
+            from assets_catalogue
+            where id = #{assetMenuId}
+            and `deleted` = 0
+            union all
+            select t.id,t.parent_id
+            from assets_catalogue t
+            inner join t1 on t1.id = t.parent_id and t.deleted = 0)
+            select id from t1 where parent_id is not null
+            )
+        </if>
+        )t
+        group by `date`
+    </select>
+
+
+    <select id="countUserDataAssetByUserId" resultType="com.sinohealth.system.dto.DataStatisticsDTO">
+        select
+        org_user_id as orgUserIds,
+        COUNT(*) as count
+        from (
+        select
+        a.id,
+        a.update_time as `create_time`,
+        d.org_user_id
+        from tg_user_data_assets a
+        left join tg_application_info b on a.src_application_id = b.id
+        left join tg_asset_info c on b.new_asset_id = c.id
+        left join sys_user d on a.creator = d.user_id
+        where 1=1
+        <if test="userIds!=null and userIds.size()>0">
+            and d.org_user_id in
+            <foreach item='item' collection='userIds' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+        <if test="startTime!=null and endTime!=null">
+            and a.update_time between #{startTime} and #{endTime}
+        </if>
+        <if test="type!=null and type!=''">
+            and c.type = #{type}
+        </if>
+        <if test="assetMenuId!=null and assetMenuId!=0">
+            and c.asset_menu_id in(
+            with recursive t1 as (select id,parent_id
+            from assets_catalogue
+            where id = #{assetMenuId}
+            and `deleted` = 0
+            union all
+            select t.id,t.parent_id
+            from assets_catalogue t
+            inner join t1 on t1.id = t.parent_id and t.deleted = 0)
+            select id from t1 where parent_id is not null)
+        </if>
+        union all
+        select
+        a.id,
+        a.create_time,
+        d.org_user_id
+        from tg_user_data_assets_snapshot a
+        left join tg_application_info b on a.src_application_id = b.id
+        left join tg_asset_info c on b.new_asset_id = c.id
+        left join sys_user d on a.creator = d.user_id
+        where 1=1
+        <if test="userIds!=null and userIds.size()>0">
+            and d.org_user_id in
+            <foreach item='item' collection='userIds' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+        <if test="startTime!=null and endTime!=null">
+            and a.create_time between #{startTime} and #{endTime}
+        </if>
+        <if test="type!=null and type!=''">
+            and c.type = #{type}
+        </if>
+        <if test="assetMenuId!=null and assetMenuId!=0">
+            and c.asset_menu_id in(
+            with recursive t1 as (select id,parent_id
+            from assets_catalogue
+            where id = #{assetMenuId}
+            and `deleted` = 0
+            union all
+            select t.id,t.parent_id
+            from assets_catalogue t
+            inner join t1 on t1.id = t.parent_id and t.deleted = 0)
+            select id from t1 where parent_id is not null)
+        </if>
+        )t
+        group by org_user_id
+    </select>
+
+
+</mapper>

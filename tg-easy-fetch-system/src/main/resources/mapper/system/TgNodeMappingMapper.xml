@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TgNodeMappingMapper">
+    <delete id="deleteByNodeIdAndApplicantId">
+        delete
+        from tg_node_mapping
+        where applicant_id = #{applicantId}
+          and node_id = #{nodeId}
+          and icon = #{type}
+    </delete>
+
+
+    <select id="queryApplicationMappingByApplicantId" resultType="com.sinohealth.system.dto.application.TgNodeMapping">
+        select a.*
+        from tg_node_mapping a
+        left join tg_user_data_assets b
+        on a.node_id = b.id
+        where a.applicant_id = #{applicantId}
+        and a.icon = 'data_assets'
+    </select>
+
+    <select id="queryDirIdByAssetsId" resultType="java.lang.Long">
+        select distinct dd.id
+        from tg_node_mapping a
+                 left join tg_user_data_assets b on a.node_id = b.id
+                 left join data_dir dd on a.dir_item_id = dd.id
+        where b.id = #{assetsId}
+          and a.icon = 'data_assets'
+          and a.dir_item_id is not null
+        limit 1;
+    </select>
+
+
+    <select id="queryArkBIMapping" resultType="com.sinohealth.system.dto.application.TgNodeMapping">
+        select a.*
+        from tg_node_mapping a
+                 left join arkbi_analysis b
+                           on a.node_id = b.id
+        where a.applicant_id = #{userId}
+          and a.icon = #{icon}
+          and b.status = 1
+    </select>
+
+    <select id="queryTableMapping" resultType="com.sinohealth.system.dto.application.TgNodeMapping">
+        select a.*
+        from tg_node_mapping a
+                 left join table_info b
+                           on a.node_id = b.id
+        where a.icon = "table"
+    </select>
+    <select id="queryDocMapping" resultType="com.sinohealth.system.dto.application.TgNodeMapping">
+        select a.*
+        from tg_node_mapping a
+                 left join tg_doc_info b
+                           on a.node_id = b.id
+        where a.icon = "doc"
+          and b.status = 1
+    </select>
+
+
+</mapper>

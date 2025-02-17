@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TgTemplateInfoMapper">
+
+    <select id="queryTemplatePage" resultType="com.sinohealth.system.domain.TgTemplateInfo">
+        select * from tg_template_info t left join tg_asset_info a on a.related_id = t.id and a.type = 'MODEL'
+        <where>
+            a.shelf_state='已上架'
+            <if test="params.searchTableName != null and params.searchTableName != ''">
+                AND t.base_table_name = #{params.searchTableName}
+            </if>
+            <if test="params.searchTemplateName != null and params.searchTemplateName != ''">
+                AND t.template_name like concat('%', #{params.searchTemplateName}, '%')
+            </if>
+            <if test="params.bizType != null and params.bizType != ''">
+                AND t.biz_type = #{params.bizType}
+            </if>
+
+            <if test="params.dirId != null and params.dirId != ''">
+                AND t.dir_id = #{params.dirId}
+            </if>
+            <if test="params.dirIds!=null and params.dirIds.size()>0">
+                AND t.dir_id in
+                <foreach item='item' index='index' collection='params.dirIds' open='(' separator=',' close=')'>
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by t.${params.orderField} ${params.orderSort}
+    </select>
+
+    <select id="queryRelateTemplatePage" resultType="com.sinohealth.system.domain.TgTemplateInfo">
+        select * from tg_template_info
+        <where>
+            <if test="params.searchTableName != null and params.searchTableName != ''">
+                AND base_table_name = #{params.searchTableName}
+            </if>
+            <if test="params.searchTemplateName != null and params.searchTemplateName != ''">
+                AND template_name like concat('%', #{params.searchTemplateName}, '%')
+            </if>
+            <if test="params.bizType != null and params.bizType != ''">
+                AND biz_type = #{params.bizType}
+            </if>
+            <if test="params.dirId != null and params.dirId != ''">
+                AND dir_id = #{params.dirId}
+            </if>
+            <if test="params.dirIds!=null and params.dirIds.size()>0">
+                AND dir_id in
+                <foreach item='item' index='index' collection='params.dirIds' open='(' separator=',' close=')'>
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by sort_index, update_time desc
+    </select>
+
+    <select id="queryProcessesByBaseTableId" resultType="com.sinohealth.system.dto.template.TemplateAuditProcessEasyDto">
+        SELECT a.process_id, a.process_name, b.id as template_id, b.template_name, b.base_table_id FROM
+            (SELECT * FROM
+                (SELECT * FROM tg_audit_process_info
+                 ORDER BY  process_version  desc limit 100000) t
+             GROUP BY t.process_id
+             ORDER BY id asc) a
+                INNER JOIN tg_template_info b
+                           ON a.process_id = b.process_id
+        WHERE b.base_table_id = #{baseTableId}
+        GROUP BY process_id, process_version
+        order by a.update_time desc
+    </select>
+
+    <select id="queryProcessesByBaseTableIds" resultType="com.sinohealth.system.dto.template.TemplateAuditProcessEasyDto">
+        SELECT a.process_id, a.process_name, b.id as template_id, b.template_name, b.base_table_id FROM
+            (SELECT * FROM
+                (SELECT * FROM tg_audit_process_info
+                 ORDER BY  process_version  desc limit 100000) t
+             GROUP BY t.process_id
+             ORDER BY id asc) a
+                INNER JOIN tg_template_info b
+                           ON a.process_id = b.process_id
+        WHERE b.base_table_id IN
+              <foreach collection="baseTableIds" item="id" open="(" separator="," close=")">
+                #{id}
+              </foreach>
+        GROUP BY process_id, process_version,b.base_table_id
+        ORDER BY a.update_time desc
+    </select>
+
+</mapper>

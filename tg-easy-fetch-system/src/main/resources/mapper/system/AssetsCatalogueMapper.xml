@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.AssetsCatalogueMapper">
+
+
+    <select id="selectListInPath" resultType="com.sinohealth.system.domain.catalogue.AssetsCatalogue">
+        select * from assets_catalogue where deleted = 0
+        <if test="ids != null and ids.size() > 0">
+            and
+            <foreach collection='ids' item='item' open='(' separator = 'or' close=')'>
+                path like CONCAT ('%/',#{item},'/%')
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getFullMenuNames" resultType="com.sinohealth.system.dto.assets.MenuNameDto">
+        WITH RECURSIVE CategoryPath AS (
+            SELECT id, name, CAST(name AS CHAR(1000)) AS path
+            FROM assets_catalogue
+            WHERE level = 1
+            UNION ALL
+            SELECT ac.id, ac.name, CONCAT(cp.path, '/', ac.name)
+            FROM assets_catalogue ac
+            JOIN CategoryPath cp ON ac.parent_id = cp.id
+        )
+        SELECT id, path AS menuName
+        FROM CategoryPath
+    </select>
+
+    <select id="getLevel12MenuNames" resultType="com.sinohealth.system.dto.assets.MenuNameDto">
+        SELECT id, concat(level_1,'/',level_2) menuName FROM (
+                SELECT
+                t.id,
+                t.name,
+                t.path,
+                a1.name AS level_1,
+                a2.name AS level_2
+                FROM (
+                SELECT id,name,path,
+                SUBSTRING_INDEX(SUBSTRING_INDEX(path, '/', 2), '/', -1) AS level_1,
+                SUBSTRING_INDEX(SUBSTRING_INDEX(path, '/', 3), '/', -1) AS level_2
+                FROM assets_catalogue
+                ) t
+                JOIN assets_catalogue a1 ON a1.id = t.level_1
+                JOIN assets_catalogue a2 ON a2.id = t.level_2
+                ) temp
+                UNION ALL
+                SELECT id,name
+                FROM assets_catalogue WHERE level = 1
+    </select>
+
+    <select id="getLevel1CatalogueId" resultType="java.lang.Integer">
+        select SUBSTRING_INDEX(SUBSTRING_INDEX(path, '/', 2), '/', -1)  AS id from assets_catalogue where path like CONCAT ('%/',#{catalogueId},'/')
+    </select>
+</mapper>

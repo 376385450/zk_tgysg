@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.PersonalServiceMapper">
+
+    <select id="queryDataView" resultType="com.sinohealth.system.domain.personalservice.PersonalServiceView">
+        SELECT
+               app.id AS applyId,
+               asset.id AS assetId,
+               asset.asset_name,
+               cata.path AS cataloguePath,
+               app.permission_json openServiceJson,
+               app.data_expir AS expireDate,
+               app.create_time AS applyDate,
+               asset.related_id AS relatedId,
+               asset.process_id,
+               asset.asset_binding_data_name,
+               asset.asset_open_services_json as allOpenServiceJson,
+               asset.shelf_state as assetShelfState,
+               syn.id as syncTaskId,
+               syn.flow_id as flowId,
+               syn.sync_task_name as taskName
+        FROM tg_application_info app
+                 LEFT JOIN tg_asset_info asset
+                      ON app.new_asset_id = asset.id
+                 LEFT JOIN assets_catalogue cata
+                           ON asset.asset_menu_id = cata.id
+                 LEFT JOIN tg_data_sync_application syn
+                        ON app.id = syn.application_id
+        <where>
+             app.status = 1
+              AND app.current_audit_process_status = 2
+              AND app.applicant_id = #{pageRequest.userId}
+              AND asset.type = #{pageRequest.assetType}
+            <if test="pageRequest.assetName != null and pageRequest.assetName != ''">
+                AND asset.asset_name like concat('%', #{pageRequest.assetName}, '%')
+            </if>
+            <if test="pageRequest.assetOpenService != null and pageRequest.assetOpenService != ''">
+                AND app.permission_json like concat('%', #{pageRequest.assetOpenService}, '%')
+            </if>
+            <choose>
+                <when test="pageRequest.serviceStatus != null and pageRequest.serviceStatus == 1">
+                    AND (app.data_expir is null or DATE_FORMAT(NOW(),'%Y-%m-%d') &lt;= DATE_FORMAT(app.data_expir, '%Y-%m-%d'))
+                    AND asset.shelf_state = '已上架'
+                </when>
+                <when test="pageRequest.serviceStatus != null and pageRequest.serviceStatus == 0">
+                    AND (app.data_expir is not null AND DATE_FORMAT(NOW(),'%Y-%m-%d') &gt; DATE_FORMAT(app.data_expir, '%Y-%m-%d'))
+                </when>
+                <when test="pageRequest.serviceStatus != null and pageRequest.serviceStatus == -1">
+                    AND asset.shelf_state != '已上架'
+                </when>
+                <otherwise></otherwise>
+            </choose>
+        </where>
+        <if test="pageRequest.order != null and pageRequest.order == 'asc'">
+            order by app.create_time asc
+        </if>
+        <if test="pageRequest.order == null or pageRequest.order == '' or pageRequest.order == 'desc'">
+            order by app.create_time desc
+        </if>
+    </select>
+
+    <select id="queryValidApplyByAssetId" resultType="com.sinohealth.system.domain.personalservice.PersonalServiceView">
+        SELECT
+        app.id AS applyId,
+        asset.id AS assetId,
+        app.permission_json openServiceJson,
+        app.data_expir AS expireDate,
+        asset.asset_open_services_json as allOpenServiceJson
+        FROM tg_application_info app
+        LEFT JOIN tg_asset_info asset
+        ON app.new_asset_id = asset.id
+        <where>
+            app.status = 1
+            AND app.current_audit_process_status = 2
+            AND app.new_asset_id = #{assetId}
+            AND app.applicant_id = #{userId}
+            AND (app.data_expir is null or DATE_FORMAT(NOW(),'%Y-%m-%d') &lt;= DATE_FORMAT(app.data_expir, '%Y-%m-%d'))
+        </where>
+    </select>
+
+</mapper>

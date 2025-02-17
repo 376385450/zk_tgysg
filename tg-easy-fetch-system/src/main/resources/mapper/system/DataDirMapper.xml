@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.DataDirMapper">
+
+    <select id="getDirIdsByName" resultType="java.lang.Long">
+        SELECT DISTINCT a.id FROM data_dir a
+        LEFT JOIN table_info b on a.id = b.dir_id
+        WHERE a.target = #{target} and a.dir_name not like '初始化目录%'
+        <if test="applicantId != null and applicantId != ''">
+            AND a.applicant_id = #{applicantId}
+        </if>
+        <if test="name != null and name != ''">
+            and a.dir_name like CONCAT('%', #{name}, '%')
+            OR b.table_name like CONCAT('%', #{name}, '%')
+            OR b. table_alias LIKE CONCAT('%', #{name}, '%')
+        </if>
+    </select>
+
+    <insert id="insertAndGetId" parameterType="com.sinohealth.common.core.domain.entity.DataDir" useGeneratedKeys="true"
+            keyProperty="dataDir.id">
+        insert into data_dir(dir_name, parent_id, sort, status, last_update, target, applicant_id, icon)
+        values (#{dataDir.dirName}, #{dataDir.parentId}, #{dataDir.sort}, 1, now(), #{target}, #{dataDir.applicantId},
+                #{dataDir.icon})
+    </insert>
+
+    <select id="queryAssetsData" resultType="com.sinohealth.system.dto.DataDirDto">
+        SELECT d.id,
+        d.dir_name AS dirName,
+        d.dir_name AS nodeViewName,
+        d.parent_id,
+        d.datasource_id,
+        d.prefix,
+        d.sort,
+        d.STATUS,
+        d.is_leaf,
+        d.icon,
+        d.comment,
+        d.moved,
+        d.node_id
+        FROM data_dir d
+        LEFT JOIN
+        tg_user_data_assets a
+        ON d.application_id = a.id
+        WHERE target = #{request.target}
+        <choose>
+            <when test="request.expireType != null and request.expireType=='expire'">
+                <if test="request.target == 2 and request.applicantId != null and request.applicantId != '' ">
+                    AND d.applicant_id = #{request.applicantId}
+                </if>
+            </when>
+            <when test="request.expireType != null and request.expireType=='normal'">
+                <if test="request.target == 2 and request.applicantId != null and request.applicantId != '' ">
+                    AND d.applicant_id = #{request.applicantId}
+                </if>
+            </when>
+        </choose>
+
+        <!--        <if test="request.target == 2 and request.applicantId != null and request.applicantId != '' ">-->
+        <!--            AND (d.applicant_id = #{request.applicantId} OR find_in_set(#{request.applicantId}, a.readable_users))-->
+        <!--        </if>-->
+        <!--        <if test="request.clientName != null">-->
+        <!--            AND (a.client_names LIKE concat('%', #{request.clientName}, '%') OR d.icon = 'file')-->
+        <!--        </if>-->
+        <if test="request.icons!=null and request.icons.size()>0">
+            AND d.icon in
+            <foreach item='item' index='index' collection='request.icons' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+        <choose>
+            <when test="request.expireType != null and request.expireType=='expire'">
+                AND a.data_expire <![CDATA[ < ]]> now() AND d.icon not in ('file_assets')
+            </when>
+            <when test="request.expireType != null and request.expireType=='normal'">
+                AND (a.data_expire <![CDATA[ > ]]> now() OR a.data_expire IS NULL OR d.icon IN ('file_assets'))
+            </when>
+        </choose>
+    </select>
+
+    <select id="selectAssetsData" resultType="com.sinohealth.system.dto.DataDirDto">
+        select
+        d.id,
+        d.dir_name as dirName,
+        d.dir_name as nodeViewName,
+        d.parent_id,
+        d.datasource_id,
+        d.prefix,
+        d.sort,
+        d.STATUS,
+        d.is_leaf,
+        d.icon,
+        d.comment,
+        d.moved,
+        d.node_id
+        FROM
+        data_dir d
+        left join
+        tg_user_data_assets a
+        on d.application_id = a.id
+        WHERE
+        target = #{request.target}
+        <if test="request.target == 2 and request.applicantId != null and request.applicantId != ''">
+            AND d.applicant_id = #{request.applicantId}
+        </if>
+        <if test="request.icon != null and request.icon != ''">
+            and d.icon = #{request.icon}
+        </if>
+        <if test="request.searchStatus == 0">
+            AND a.status = 0
+        </if>
+        <if test="request.requireTimeType != null">
+            AND a.require_time_type = #{request.requireTimeType}
+        </if>
+        <if test="request.requireAttr != null">
+            AND a.require_attr = #{request.requireAttr}
+        </if>
+        <if test="request.templateId != null">
+            AND a.template_id = #{request.templateId}
+        </if>
+        <if test="request.clientNames != null">
+            AND a.client_names = #{request.clientNames}
+        </if>
+        <if test="request.searchStatus == 1">
+            AND a.status = 1 AND a.current_audit_process_status = 2
+        </if>
+        <if test="request.searchStatus == 2">
+            AND a.current_audit_process_status != 2
+        </if>
+        <if test="request.searchBaseTable != null and request.searchBaseTable != ''">
+            AND a.base_table_name = #{request.searchBaseTable}
+        </if>
+        <if test="request.baseTableId != null">
+            AND a.base_table_id = #{request.baseTableId}
+        </if>
+
+        <if test="request.searchProjectName != null and request.searchProjectName != ''">
+            AND d.dir_name like CONCAT('%',#{request.searchProjectName},'%')
+        </if>
+        <if test="request.icon != null and request.icon != ''">
+            and d.icon = #{request.icon}
+        </if>
+
+        <choose>
+            <when test="request.expireType != null and request.expireType=='expire'">
+                AND a.data_expire <![CDATA[ < ]]> now()
+            </when>
+            <when test="request.expireType != null and request.expireType=='normal'">
+                AND (a.data_expire <![CDATA[ > ]]> now() OR a.data_expire is null )
+            </when>
+        </choose>
+
+    </select>
+
+    <!--mysql 5.7 不支持 with resursive 语法, 创建函数对环境又有额外配置, 再者目录数据量不可能太多, 所以这里直接全部返回-->
+    <select id="selectTreeData" resultType="com.sinohealth.system.dto.DataDirDto">
+        select distinct
+        d.id,
+        d.dir_name as dirName,
+        d.dir_name as nodeViewName,
+        d.parent_id,
+        d.datasource_id,
+        d.prefix,
+        d.sort,
+        d.STATUS,
+        d.is_leaf,
+        ( SELECT count(*) FROM table_info t WHERE t.dir_id = d.id ) tableNums,
+        d.icon,
+        d.comment,
+        d.moved
+        FROM
+        data_dir d
+        left join
+        tg_application_info a
+        on d.application_id = a.id
+        WHERE
+        target = #{target}
+        <if test="target == 2 and applicantId != null and applicantId != ''">
+            AND d.applicant_id = #{applicantId}
+        </if>
+        <if test="searchStatus == 0">
+            AND a.status = 0
+        </if>
+        <if test="searchStatus == 1">
+            AND a.status = 1 AND a.current_audit_process_status = 2
+        </if>
+        <if test="searchStatus == 2">
+            AND a.current_audit_process_status != 2
+        </if>
+        <if test="searchBaseTable != null and searchBaseTable != ''">
+            AND a.base_table_name = #{searchBaseTable}
+        </if>
+        <if test="baseTableId != null">
+            AND a.base_table_id = #{baseTableId}
+        </if>
+
+        <if test="searchProjectName != null and searchProjectName != ''">
+            AND d.dir_name like CONCAT('%',#{searchProjectName},'%')
+        </if>
+        <if test="icon != null and icon != ''">
+            and d.icon = #{icon}
+        </if>
+
+        <choose>
+            <when test="expireType != null and expireType=='expire'">
+                AND a.data_expir <![CDATA[ < ]]> now()
+            </when>
+            <when test="expireType != null and expireType=='normal'">
+                AND (a.data_expir <![CDATA[ > ]]> now() OR a.data_expir is null )
+            </when>
+        </choose>
+    </select>
+
+
+    <select id="selectSonOfParentDir" resultType="com.sinohealth.common.core.domain.entity.DataDir">
+        select id,
+        dir_name,
+        parent_id,
+        datasource_id,
+        prefix,
+        sort,
+        status,
+        is_leaf,
+        last_update as lastUpdate,
+        comment
+        from data_dir d
+        where parent_id = #{parentId}
+        and target = #{target}
+        and icon = 'file'
+        <if test="status!=null">
+            AND `status` = #{status}
+        </if>
+        order by sort
+    </select>
+
+    <sql id="tg_data_dir_view">
+        SELECT v.*, d.parent_id, d.dir_name, IF(p.dir_name is null , d.dir_name, concat(p.dir_name, '-', d.dir_name))  biz_dir_type
+        FROM (SELECT id,
+                     create_user_id AS owner_id,
+                     table_alias    AS name,
+                     comment,
+                     create_time,
+                     update_time,
+                     'table'        AS icon,
+                     dir_id,
+                     leader_name,
+                     0              AS process_id,
+                     table_name,
+                     ''             AS template_type,
+                     status,
+                     1              as block_sort,
+                     dis_sort
+              FROM table_info
+              WHERE is_diy = 0
+              UNION
+              SELECT id,
+                     owner_id,
+                     name,
+                     comment,
+                     create_time,
+                     update_time,
+                     'doc' AS icon,
+                     dir_id,
+                     ''    AS leader_name,
+                     process_id,
+                     ''    AS table_name,
+                     ''    AS template_type,
+                     status,
+                     2     as block_sort,
+                     dis_sort
+              FROM tg_doc_info
+              WHERE name is not null
+              UNION
+              SELECT id,
+                     0             as owner_id,
+                     template_name as name,
+                     temp_comment  as comment,
+                     create_time,
+                     update_time,
+                     'template'    AS icon,
+                     dir_id,
+                     creator       AS leader_name,
+                     process_id,
+                     ''            AS table_name,
+                     template_type,
+                     status,
+                     0             as block_sort,
+                     dis_sort
+              FROM tg_template_info) v
+                 LEFT JOIN data_dir d ON d.id = v.dir_id
+                 LEFT JOIN data_dir p ON d.parent_id = p.id
+        ORDER BY v.create_time DESC
+    </sql>
+
+    <select id="existOutOfDir" resultType="java.lang.Integer">
+        select f.id
+        from (
+        <include refid="tg_data_dir_view"></include>
+        ) f
+        where f.dir_id = 0
+        limit 1;
+    </select>
+
+    <select id="pageQueryDirView" resultType="com.sinohealth.system.biz.dir.entity.DataDirView">
+        SELECT * FROM (
+        <include refid="tg_data_dir_view"></include>
+        ) f
+        <where>
+            1=1
+            <if test="param.status != null">
+                AND f.status = #{param.status}
+            </if>
+            <if test="param.applicationType!=null and param.applicationType!=''">
+                AND f.icon = #{param.applicationType}
+            </if>
+            <if test="param.dirId!=null">
+                AND f.dir_id = #{param.dirId}
+            </if>
+            <if test="param.searchContent!=null and param.searchContent!=''">
+                AND f.name like concat('%',#{param.searchContent},'%')
+            </if>
+            <if test="param.dirIds!=null and param.dirIds.size()>0">
+                 AND f.dir_id in
+                <foreach item='item' index='index' collection='param.dirIds' open='(' separator=',' close=')'>
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY f.block_sort,f.biz_dir_type,f.dis_sort
+    </select>
+
+    <select id="getDataDirsByTarget" resultType="com.sinohealth.common.core.domain.entity.DataDir">
+        SELECT distinct a.* FROM data_dir a
+        LEFT JOIN table_info b on a.id = b.dir_id
+        WHERE a.target = #{target} and a.dir_name not like '初始化目录%'
+        <if test="applicantId != null and applicantId != ''">
+            AND a.applicant_id = #{applicantId}
+        </if>
+    </select>
+
+    <select id="getDataDirs" resultType="com.sinohealth.system.dto.DataDirDto">
+        SELECT
+            a.*,
+            ( SELECT count(*) FROM table_info t WHERE t.dir_id = a.id ) tableNums
+        FROM data_dir a
+        WHERE
+            a.target = 1
+            and a.dir_name not like '初始化目录%'
+    </select>
+
+    <select id="getAllNodeIds" resultType="java.lang.Long">
+        SELECT _id
+        FROM (SELECT @r                                                      AS _id,
+                     (SELECT @r := parent_id FROM data_dir WHERE id = #{id}) AS _pid
+              FROM (SELECT @r := #{id}) vars,
+                   data_dir h
+              WHERE @r != 0) a
+    </select>
+
+    <select id="getByApplicationId" resultType="com.sinohealth.common.core.domain.entity.DataDir">
+        select * from data_dir
+        <where>
+            <if test="applicationId != null">and application_id = #{applicationId}</if>
+            <if test="icon != null and icon != ''">and icon = #{icon}</if>
+        </where>
+    </select>
+
+</mapper>

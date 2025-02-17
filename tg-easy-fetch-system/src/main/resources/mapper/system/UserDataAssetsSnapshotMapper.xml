@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.biz.dataassets.mapper.UserDataAssetsSnapshotMapper">
+
+    <select id="groupByAssetsId" resultType="com.sinohealth.system.biz.dataassets.domain.UserDataAssetsSnapshot">
+        SELECT assets_id, count(*) AS version
+        FROM tg_user_data_assets_snapshot
+        WHERE assets_id in
+        <foreach collection="assetsIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+
+        GROUP BY assets_id
+    </select>
+
+    <select id="pageWithMain" resultType="com.sinohealth.system.biz.dataassets.domain.UserDataAssetsSnapshot">
+    select * from (
+    select version,snapshot_type,expire_type,id as assets_id,create_time,data_expire,src_application_id,base_table_id,base_version,template_type,flow_detail_id, flow_process_type
+        from  tg_user_data_assets
+    union all
+    SELECT version,snapshot_type,expire_type,assets_id,create_time,data_expire,src_application_id,base_table_id,base_version,template_type,flow_detail_id, flow_process_type
+        FROM tg_user_data_assets_snapshot
+    ) x
+
+    WHERE (x.assets_id = #{assetsId}) ORDER BY x.version DESC
+    </select>
+
+</mapper>

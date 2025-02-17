@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.biz.process.mapper.TgFlowProcessManagementMapper">
+
+    <select id="listByTemplateIds" resultType="com.sinohealth.system.biz.process.vo.FlowProcessSplitByTemplateVO">
+        select t.*
+        from (SELECT id,
+        name,
+        SUBSTRING_INDEX(SUBSTRING_INDEX(template_ids, ',', n), ',', - 1) AS template_id
+        FROM `tg_flow_process_management`,
+        (SELECT @rownum := @rownum + 1 AS n
+        FROM (SELECT @rownum := 0) r,
+        `tg_flow_process_management`) x
+        WHERE 1 = 1
+        AND n &lt;= (LENGTH(template_ids) - LENGTH(REPLACE(template_ids, ',', '')) + 1)
+        ORDER BY id) t
+        <where>
+            <if test="templateIds != null and templateIds.size > 0">
+                and t.template_id in
+                <foreach collection='templateIds' item='templateId' open='('
+                         separator=',' close=')'>
+                    #{templateId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

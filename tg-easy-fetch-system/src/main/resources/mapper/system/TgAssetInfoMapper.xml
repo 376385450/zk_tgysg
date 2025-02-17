@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TgAssetInfoMapper">
+
+    <select id="frontTreeQuery" resultType="com.sinohealth.system.dto.assets.TgAssetFrontTreeQueryResult">
+        select
+                a.id, `type`, `related_id`, meta_id, asset_name, asset_code, asset_sort, asset_binding_data_type,
+                asset_binding_data_name, asset_menu_id, asset_labels_json, asset_provider, asset_manager_json,
+                asset_manager_name, asset_description, asset_usage, is_follow_asset_menu_readable_range,
+                custom_asset_readable_whitelist_json, asset_open_services_json, query_limit,
+                is_follow_service_menu_readable_range, service_whitelist_json, resource_type, shelf_state,
+                creator, updater, create_time, update_time, a.deleted, type_sort, `name`, sort_order, global_sort,
+                case
+                    when is_follow_service_menu_readable_range = 'FOLLOW_DIR_AUTH'  then service_flow_id
+                    else process_id end as processId
+        from (
+            <if test="menuIds.size > 0">
+              select *,
+                     case
+                         when type = 'MODEL' then 1
+                         when type = 'TABLE' then 2
+                         when type = 'FILE' then 3
+                         end as type_sort
+              from tg_asset_info a1
+              where is_follow_asset_menu_readable_range = 'FOLLOW_DIR_AUTH'
+                and asset_menu_id in
+                <foreach collection='menuIds' item='menuId' open='(' separator = ',' close=')'>
+                    #{menuId}
+                </foreach>
+              union all
+            </if>
+              select *,
+                     case
+                         when type = 'MODEL' then 1
+                         when type = 'TABLE' then 2
+                         when type = 'FILE' then 3
+                         end as type_sort
+              from tg_asset_info where id in (
+                  select a2.id from tg_asset_info a2
+                                        left join tg_asset_whitelist_info w on a2.id = w.asset_id
+                      <if test="queryParams.dirId != null">
+                          left join assets_catalogue ac on a2.asset_menu_id = ac.id
+                      </if>
+                  where service_type = 'READABLE'
+                    and is_follow_asset_menu_readable_range = 'CUSTOM_AUTH'
+                    <if test="queryParams.dirId != null">
+                        and ac.path like CONCAT ('%/',#{queryParams.dirId},'/%')
+                    </if>
+                    and ((staff_type = 'DEPT' and staff_id = #{deptId})
+                    or (staff_type = 'USER' and staff_id = #{userId}))
+                    )) a
+              left join assets_catalogue c on a.asset_menu_id = c.id
+              <if test="queryParams.sortType != null and queryParams.sortType.type == 'APPLIED_TIMES'">
+                  left join (select new_asset_id asset_id, count(*) applied_count from tg_application_info where new_asset_id is not null group by new_asset_id) d
+                  on a.id = d.asset_id
+              </if>
+              <if test="queryParams.sortType != null and queryParams.sortType.type == 'VIEW_TIMES'">
+                  left join (select asset_id, sum(view_num) viewed_count from tg_asset_user_relation group by asset_id) f
+                  on a.id = f.asset_id
+              </if>
+        <where>
+            a.shelf_state = '已上架' and a.deleted = 0
+            <if test="queryParams.searchContent != null and queryParams.searchContent != ''">
+                and (
+                a.asset_name like concat('%', #{queryParams.searchContent}, '%')
+                or a.asset_description like concat('%', #{queryParams.searchContent}, '%')
+                or a.asset_binding_data_name like concat('%', #{queryParams.searchContent}, '%')
+                <if test="assetIds.size > 0">
+                    or a.id in
+                    <foreach collection='assetIds' item='assetId' open='(' separator = ',' close=')'>
+                        #{assetId}
+                    </foreach>
+                </if>
+                )
+            </if>
+            <if test="queryParams.type != null and queryParams.type.type != ''">
+                and a.type = #{queryParams.type.type}
+            </if>
+        </where>
+        order by
+            <choose>
+                <when test="queryParams.sortType != null and queryParams.sortType.type == 'LATEST'">
+                    update_time desc
+                </when>
+                <when test="queryParams.sortType != null and queryParams.sortType.type == 'APPLIED_TIMES'">
+                    applied_count desc
+                </when>
+                <when test="queryParams.sortType != null and queryParams.sortType.type == 'VIEW_TIMES'">
+                    viewed_count desc
+                </when>
+                <otherwise>
+                    type_sort, global_sort, asset_sort
+                </otherwise>
+            </choose>
+
+    </select>
+
+
+    <update id="updateBatch" parameterType="java.util.List">
+        update tg_asset_info
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="asset_sort =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    when id=#{item.id} then #{item.assetSort}
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <select id="selectMaxSort" resultType="java.lang.Long">
+        SELECT FLOOR((COALESCE(MAX(asset_sort), 0) + 100) / 100) * 100 AS next_value
+        FROM tg_asset_info
+    </select>
+
+    <select id="myApplicaionQuery"
+            resultType="com.sinohealth.system.dto.assets.TgAssetMyApplicationPageResult">
+        select
+        a1.id as "applicationId", a2.id as "assetId", a2.related_id as "relatedId", a2.asset_name as "assetName",
+        a2.type as "assetType", a1.permission_json as "assetOpenServicesJson",
+        a2.process_id as "processId", a2.related_id as "relatedId",a1.application_no as "applicationNo",
+        a2.asset_binding_data_type as "assetBindingDataType", a2.asset_binding_data_name as "assetBindingDataName",
+        a1.apply_reason as "applyReason", a1.create_time as "applyTime", a1.applicant_id as "applicantId",
+        a1.applicant_name as "applicantName", a1.current_audit_process_status as "currentAuditProcessStatus",
+        a1.data_expir as "dataExpir", a1.client_names as "clientNames", a1.project_name as "requireName",
+        a1.require_attr as "requireAttr", a1.require_time_type as "requireTimeType",
+        a1.current_handlers as "currentHandlers", a1.new_application_id,a1.data_state
+        <if test="queryParams.assetType != null and queryParams.assetType.type == 'MODEL'">
+            , t.template_name as "templateName"
+            , p.name as "projectName"
+            , r.state as "state"
+        </if>
+        from tg_application_info a1
+        left join tg_project pr on a1.project_id = pr.id
+        left join tg_asset_info a2
+        on a1.new_asset_id = a2.id
+        <if test="queryParams.assetType != null and queryParams.assetType.type == 'MODEL'">
+            left join tg_template_info t
+            on a1.template_id = t.id
+            left join tg_project p
+            on p.id = a1.project_id
+            left join
+            (
+            select a.* from tg_acceptance_record a inner join
+            (
+            select id, max(version) from tg_acceptance_record group by application_id
+            )tmp on a.id = tmp.id
+            ) r
+            on r.application_id = a1.id
+        </if>
+        <where>
+            <if test="queryParams.dataState !=null and queryParams.dataState != ''">
+                AND a1.data_state = #{queryParams.dataState}
+            </if>
+            <if test="userId != null and userId != ''">
+                and a1.applicant_id = #{userId}
+            </if>
+            <if test="queryParams.searchRequireTimeType != null and queryParams.searchRequireTimeType != ''">
+                and a1.require_time_type = #{queryParams.searchRequireTimeType}
+            </if>
+            <if test="queryParams.applicationNo != null and queryParams.applicationNo !=''">
+                and a1.application_no = #{queryParams.applicationNo}
+            </if>
+            <if test="queryParams.searchReqiureAttr != null and queryParams.searchReqiureAttr != ''">
+                and a1.require_attr = #{queryParams.searchReqiureAttr}
+            </if>
+            <if test="queryParams.assetType != null and queryParams.assetType.type != ''">
+                and a2.type = #{queryParams.assetType.type}
+            </if>
+            <if test="queryParams.searchProcessStatus != null">
+                and a1.current_audit_process_status = #{queryParams.searchProcessStatus}
+            </if>
+            <if test="queryParams.applicationType != null and queryParams.applicationType != ''">
+                and a2.asset_open_services_json like concat('%',#{queryParams.applicationType},'%')
+            </if>
+            <if test="queryParams.searchContent != null and queryParams.searchContent != ''">
+                and (
+                a2.asset_name like concat('%',#{queryParams.searchContent},'%')
+                <!--<if test="queryParams.assetType != null and queryParams.assetType.type == 'FILE'">
+                    or a1.doc_name like concat('%',#{queryParams.searchContent},'%')
+                </if>
+                <if test="queryParams.assetType != null and queryParams.assetType.type == 'TABLE'">
+                    or a1.all_table_names like concat('%',#{queryParams.searchContent},'%')
+                </if>-->
+                <if test="queryParams.assetType != null and queryParams.assetType.type == 'MODEL'">
+                    or a1.project_name like concat('%',#{queryParams.searchContent},'%')
+                </if>
+                )
+            </if>
+            <if test="queryParams.searchClient != null and queryParams.searchClient != ''">
+                and a1.id in (select temp_info.id from tg_application_info temp_info
+                left join tg_project tp on tp.id = temp_info.project_id
+                left join t_customer tc on tp.customer_id = tc.id
+                where tc.short_name like concat('%',#{queryParams.searchClient},'%')
+                group by temp_info.id)
+            </if>
+        </where>
+        order by a1.create_time desc
+    </select>
+
+    <select id="myApplicaionCount" resultType="Map">
+        select
+            a2.type, count(*) as count
+        from tg_application_info a1
+        left join tg_asset_info a2
+        on a1.new_asset_id = a2.id
+        where a1.applicant_id = #{userId}
+        group by a2.type
+        having type is not null
+    </select>
+
+    <select id="backendQuery" resultType="com.sinohealth.system.domain.TgAssetInfo">
+        select * from tg_asset_info a
+        left join assets_catalogue c on a.asset_menu_id = c.id
+        <if test="queryParams.type != null and queryParams.type.type == 'MODEL'">
+            left join tg_template_info t on a.related_id = t.id
+        </if>
+        <where>
+                a.deleted = 0
+                and a.type = #{queryParams.type}
+            <if test="queryParams.shelfState != null and queryParams.shelfState != ''">
+                and a.shelf_state = #{queryParams.shelfState}
+            </if>
+            <if test="queryParams.assetBindingDataType != null and queryParams.assetBindingDataType != ''">
+                and a.asset_binding_data_type = #{queryParams.assetBindingDataType}
+            </if>
+            <if test="queryParams.searchContent != null and queryParams.searchContent != ''">
+                and a.asset_name like concat('%',#{queryParams.searchContent},'%')
+            </if>
+            <if test="queryParams.type != null and queryParams.type.type == 'MODEL' and queryParams.baseTableName != null and queryParams.baseTableName != ''">
+                and t.base_table_name like concat('%',#{queryParams.baseTableName},'%')
+            </if>
+            <if test="manageableAssetMenuIds.size > 0">
+                and a.asset_menu_id in
+                <foreach collection='manageableAssetMenuIds' item='menuId' open='(' separator = ',' close=')'>
+                    #{menuId}
+                </foreach>
+            </if>
+            <if test="queryParams.relatedIds != null and queryParams.relatedIds.size > 0">
+                and a.related_id in
+                <foreach collection='queryParams.relatedIds' item='relatedId' open='('
+                         separator = ',' close=')'>
+                    #{relatedId}
+                </foreach>
+            </if>
+            <if test="queryParams.flowRelatedIds != null and queryParams.flowRelatedIds.size > 0">
+                and a.related_id in
+                <foreach collection='queryParams.flowRelatedIds' item='relatedId' open='('
+                         separator = ',' close=')'>
+                    #{relatedId}
+                </foreach>
+            </if>
+        </where>
+        order by
+        <choose>
+            <when test="queryParams.sortField != null and queryParams.sortField != '' and queryParams.sortRule != null and queryParams.sortRule == 'asc'">
+                a.${queryParams.sortField} ${queryParams.sortRule}
+            </when>
+            <when test="queryParams.sortField != null and queryParams.sortField != '' and queryParams.sortRule != null and queryParams.sortRule == 'desc'">
+                a.${queryParams.sortField} ${queryParams.sortRule}
+            </when>
+            <when test="queryParams.sortField != null and queryParams.sortField != '' and queryParams.sortRule == null">
+                a.${queryParams.sortField} desc
+            </when>
+            <otherwise>
+                c.global_sort, a.asset_sort
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="computeCurrentUserApplyCount" resultType="java.lang.Integer">
+        select count(*) from tg_application_info
+            where applicant_id = #{userId}
+               and new_asset_id = #{assetId}
+               and current_audit_process_status = 2
+               and data_expir > now()
+    </select>
+
+
+    <select id="countByAssetType" resultType="com.sinohealth.system.dto.DataStatisticsDTO">
+        select DATE_FORMAT(a.apply_passed_time, #{dateFormat}) as `date`,
+        COUNT(a.id) as count
+        from tg_application_info a
+        left join tg_asset_info b on a.new_asset_id = b.id
+        where a.new_asset_id is not null
+        and a.current_audit_process_status = 2
+        <if test="startTime!=null and endTime!=null">
+            and a.apply_passed_time between #{startTime} and #{endTime}
+        </if>
+        <if test="type!=null and type!=''">
+            and b.type = #{type}
+        </if>
+        <if test="assetMenuId!=null and assetMenuId!=0">
+            and b.asset_menu_id in(
+            with recursive t1 as (select id,parent_id
+            from assets_catalogue
+            where id = #{assetMenuId}
+            and `deleted` = 0
+            union all
+            select t.id,t.parent_id
+            from assets_catalogue t
+            inner join t1 on t1.id = t.parent_id and t.deleted = 0)
+            select id from t1 where parent_id is not null
+            )
+        </if>
+        group by `date`
+    </select>
+
+    <select id="queryUserAssetInfoByPage" resultType="com.sinohealth.system.dto.TgUserAssetDTO">
+        select * from (
+        select
+        a.update_time as `create_time` ,
+        b.applicant_name,
+        b.applicant_department,
+        c.asset_name,
+        b.project_name,
+        a.snapshot_type as `serviceType`,
+        b.require_time_type,
+        e.org_user_id,
+        CONCAT_WS('/',f.name, d.name) as menuName
+        from tg_user_data_assets a
+        left join tg_application_info b on a.src_application_id = b.id
+        left join tg_asset_info c on b.new_asset_id = c.id
+        left join assets_catalogue d on c.asset_menu_id = d.id
+        left join sys_user e on a.applicant_id =e.user_id
+        left join assets_catalogue f on d.parent_id = f.id
+        where 1=1
+        and b.new_asset_id is not null
+        and c.type='MODEL'
+        <if test="userIds.size()>0">
+            and b.applicant_id in
+            <foreach item='item' collection='userIds' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+        <if test="startTime != null and endTime !=null">
+            and a.update_time between #{startTime} and #{endTime}
+        </if>
+        <if test="assetName !=null and assetName!=''">
+            and c.asset_name = #{assetName}
+        </if>
+        <if test="assetMenuName !=null and assetMenuName!=''">
+            and   CONCAT_WS('/',f.name, d.name) like concat('%', #{assetMenuName}, '%')
+        </if>
+        <if test="serviceType !=null and serviceType!=''">
+            and a.snapshot_type = #{serviceType}
+        </if>
+        <if test="assetMenuId!=null and assetMenuId!=0">
+            and c.asset_menu_id in(
+            with recursive t1 as (select id,parent_id
+            from assets_catalogue
+            where id = #{assetMenuId}
+            and `deleted` = 0
+            union all
+            select t.id,t.parent_id
+            from assets_catalogue t
+            inner join t1 on t1.id = t.parent_id and t.deleted = 0)
+            select id from t1 where parent_id is not null)
+        </if>
+        union all
+        select
+        a.create_time,
+        b.applicant_name,
+        b.applicant_department,
+        c.asset_name,
+        b.project_name,
+        a.snapshot_type as `serviceType`,
+        b.require_time_type,
+        e.org_user_id,
+        CONCAT_WS('/',f.name, d.name) as menuName
+        from tg_user_data_assets_snapshot a
+        left join tg_application_info b on a.src_application_id = b.id
+        left join tg_asset_info c on b.new_asset_id = c.id
+        left join assets_catalogue d on c.asset_menu_id = d.id
+        left join sys_user e on a.applicant_id =e.user_id
+        left join assets_catalogue f on d.parent_id = f.id
+        where 1=1
+        and c.type='MODEL'
+        <if test="userIds.size()>0">
+            and b.applicant_id in
+            <foreach item='item' collection='userIds' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+        <if test="startTime != null and endTime !=null">
+            and a.create_time between #{startTime} and #{endTime}
+        </if>
+        <if test="assetName !=null and assetName!=''">
+            and c.asset_name = #{assetName}
+        </if>
+        <if test="serviceType !=null and serviceType!=''">
+            and a.snapshot_type = #{serviceType}
+        </if>
+        <if test="assetMenuName !=null and assetMenuName!=''">
+            and   CONCAT_WS('/',f.name, d.name) like concat('%', #{assetMenuName}, '%')
+        </if>
+        <if test="assetMenuId!=null and assetMenuId!=0">
+            and c.asset_menu_id in(
+            with recursive t1 as (select id,parent_id
+            from assets_catalogue
+            where id = #{assetMenuId}
+            and `deleted` = 0
+            union all
+            select t.id,t.parent_id
+            from assets_catalogue t
+            inner join t1 on t1.id = t.parent_id and t.deleted = 0)
+            select id from t1 where parent_id is not null)
+        </if>
+        )t order by create_time desc
+    </select>
+
+
+
+
+</mapper>

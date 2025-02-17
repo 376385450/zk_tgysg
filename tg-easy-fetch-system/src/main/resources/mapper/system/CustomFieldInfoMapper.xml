@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.CustomFieldInfoMapper">
+
+    <insert id="insertOrUpdate">
+        INSERT INTO custom_field_info (id, field_name, field_alias, real_name, comment, source_id, table_id, source,data_type,hidden_for_apply,compute_way)
+        VALUES (#{customFieldInfo.id}, #{customFieldInfo.fieldName}, #{customFieldInfo.fieldAlias}, #{customFieldInfo.realName},
+                #{customFieldInfo.comment}, #{customFieldInfo.sourceId}, #{customFieldInfo.tableId}, #{customFieldInfo.source},
+                #{customFieldInfo.dataType},#{customFieldInfo.hiddenForApply},#{customFieldInfo.computeWay})
+        ON DUPLICATE KEY UPDATE id=id, field_alias=#{customFieldInfo.fieldAlias}, real_name=#{customFieldInfo.realName},
+                             comment=#{customFieldInfo.comment},hidden_for_apply=#{customFieldInfo.hiddenForApply},compute_way=#{customFieldInfo.computeWay}
+    </insert>
+
+    <select id="selectCustomFields" resultType="com.sinohealth.system.domain.CustomFieldInfo">
+        SELECT * FROM custom_field_info
+        <where>
+            <if test="sourceId != null and sourceId != '' ">
+                and source_id = #{sourceId}
+            </if>
+            <if test="source != null and source != ''">
+                and source = #{source}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryById" resultType="com.sinohealth.system.domain.CustomFieldInfo">
+        SELECT * FROM custom_field_info where id = #{id}
+    </select>
+
+    <select id="selectCustomFieldNameBySourceIdAndFieldName" resultType="com.sinohealth.system.domain.CustomFieldInfo">
+        SELECT * FROM custom_field_info where source_id = #{sourceId} and field_name = #{fieldName}
+    </select>
+
+</mapper>

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.TableInfoMapper">
+
+    <resultMap type="TableInfo" id="TableInfoResult">
+        <result property="id" column="id"/>
+        <result property="tableName" column="table_name"/>
+        <result property="safeLevel" column="safe_level"/>
+        <result property="dirId" column="dir_id"/>
+        <result property="comment" column="comment"/>
+    </resultMap>
+
+    <sql id="selectTableInfoVo">
+        select id, table_name, dept_name, manager_name, safe_level, dir_id, comment
+        from table_info
+    </sql>
+
+    <select id="getList" resultType="com.sinohealth.system.domain.TableInfo">
+        select t.* from table_info t
+        where t.dir_id =#{dirId} and t.status=1
+        <if test="tableName!=null and tableName!=''">
+            and (t.table_name like CONCAT('%',#{tableName},'%') or t.table_alias like CONCAT('%',#{tableName},'%') )
+        </if>
+        <if test="fieldName!=null and fieldName!=''">
+            and t.id in (select f.table_id from table_field_info f where f.dir_id=#{dirId} and f.field_name like
+            CONCAT('%',#{fieldName},'%') )
+        </if>
+        <if test="tableIds!=null">
+            and t.id in
+            <foreach item='item' index='index' collection='tableIds' open='(' separator=',' close=')'>
+                #{item}
+            </foreach>
+        </if>
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectTableInfoList" parameterType="TableInfo" resultMap="TableInfoResult">
+        <include refid="selectTableInfoVo"/>
+        <where>
+            <if test="tableName != null  and tableName != ''">and table_name like concat('%', #{tableName}, '%')</if>
+            <if test="safeLevel != null ">and safe_level = #{safeLevel}</if>
+            <if test="dirId != null ">and dir_id = #{dirId}</if>
+            <if test="comment != null  and comment != ''">and comment = #{comment}</if>
+        </where>
+    </select>
+
+    <select id="selectTableInfoById" parameterType="Long" resultMap="TableInfoResult">
+        <include refid="selectTableInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertTableInfo" parameterType="TableInfo">
+        insert into table_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="tableName != null and tableName != ''">table_name,</if>
+
+            <if test="safeLevel != null">safe_level,</if>
+            <if test="dirId != null">dir_id,</if>
+            <if test="comment != null">comment,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="tableName != null and tableName != ''">#{tableName},</if>
+
+            <if test="safeLevel != null">#{safeLevel},</if>
+            <if test="dirId != null">#{dirId},</if>
+            <if test="comment != null">#{comment},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTableInfo" parameterType="TableInfo">
+        update table_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tableName != null and tableName != ''">table_name = #{tableName},</if>
+            <if test="safeLevel != null">safe_level = #{safeLevel},</if>
+            <if test="dirId != null">dir_id = #{dirId},</if>
+            <if test="comment != null">comment = #{comment},</if>
+        </trim>
+        where id = #{id}
+    </update>
+    <update id="updateDirIdOfTableInfo">
+        update table_info
+        dir_id = #{dirId},
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tableName != null and tableName != ''">table_name = #{tableName},</if>
+            <if test="safeLevel != null">safe_level = #{safeLevel},</if>
+            <if test="comment != null">comment = #{comment},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTableInfoById" parameterType="Long">
+        delete
+        from table_info
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteTableInfoByIds" parameterType="String">
+        delete from table_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getTableDirIdBySql" resultType="java.lang.Long" parameterType="java.lang.String">
+        SELECT t.dir_id
+        FROM (
+                 SELECT dir.id AS dir_id
+                 FROM table_info tableInfo
+                          JOIN data_dir dir ON dir.id = tableInfo.dir_id
+                 WHERE tableInfo.id IN (select id from table_info where INSTR(#{sql}, table_name))
+                 GROUP BY tableInfo.id, dir.datasource_id
+             ) t
+        GROUP BY t.dir_id
+    </select>
+
+    <select id="getTableInfoAccess" resultType="com.sinohealth.system.dto.TableInfoAccessDTO">
+        select t.id, t.table_name, t.status, t3.source_name, t4.access_type
+        from table_info t
+                 left join data_dir t2 on t2.id = t.dir_id
+                 left join datasource_config t3 on t3.id = t2.datasource_id
+                 left join sys_user_table t4 on t4.table_id = t.id
+        where INSTR(#{sql}, t.table_name)
+          and t4.user_id = #{userId}
+    </select>
+
+    <select id="getTableField" resultType="com.sinohealth.system.dto.TableFieldDTO">
+        select t.id, t.table_name, t.status, t3.source_name, t4.id as field_id, t4.field_name
+        from table_info t
+                 left join data_dir t2 on t2.id = t.dir_id
+                 left join datasource_config t3 on t3.id = t2.datasource_id
+                 left join table_field_info t4 on t4.table_id = t.id
+        where INSTR(#{sql}, concat(t3.source_name, '.', t.table_name))
+    </select>
+
+    <select id="getTableInfoByUserAccess" resultType="com.sinohealth.system.dto.analysis.ListDatasourceResponseDTO">
+        select t.id, t.table_name, t.table_alias, t.dir_id, t.status, t2.datasource_id sourceId, t3.source_name,
+        t4.access_type
+        from table_info t
+        left join data_dir t2 on t2.id = t.dir_id
+        left join datasource_config t3 on t3.id = t2.datasource_id
+        left join sys_user_table t4 on t4.table_id = t.id
+        where t4.user_id = #{userId}
+        <if test="dirIdSet != null and dirIdSet.size() > 0">
+            AND t.dir_id IN
+            <foreach collection="dirIdSet" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="tableName != null and tableName != ''">
+            AND ( t.table_name like CONCAT('%', #{tableName}, '%') or t.table_alias like CONCAT('%', #{tableName}, '%')
+            )
+        </if>
+        ORDER BY t.table_name
+    </select>
+
+    <select id="getTableInfoByUserAccessAndId"
+            resultType="com.sinohealth.system.dto.analysis.ListDatasourceResponseDTO">
+        select t.id, t.table_name, t.table_alias, t.dir_id, t.status, t2.datasource_id sourceId, t3.source_name,
+        t4.access_type
+        from table_info t
+        left join data_dir t2 on t2.id = t.dir_id
+        left join datasource_config t3 on t3.id = t2.datasource_id
+        left join sys_user_table t4 on t4.table_id = t.id
+        where t4.user_id = #{userId}
+        <if test="idSet != null and idSet.size() > 0">
+            AND t.id IN
+            <foreach collection="idSet" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        ORDER BY t.table_name
+    </select>
+
+    <select id="listTableInfoByUserAccess" resultType="com.sinohealth.system.dto.analysis.DatasourceResponseDTO">
+        select t.id, t.table_name, t.table_alias, t.dir_id, t.status, t2.datasource_id sourceId, t3.source_name,
+        t4.access_type
+        from table_info t
+        left join data_dir t2 on t2.id = t.dir_id
+        left join datasource_config t3 on t3.id = t2.datasource_id
+        left join sys_user_table t4 on t4.table_id = t.id
+        where t4.user_id = #{userId}
+        <if test="dirIdSet != null and dirIdSet.size() > 0">
+            AND t.dir_id IN
+            <foreach collection="dirIdSet" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="id != null">
+            AND t.id = #{id}
+        </if>
+        <if test="content != null">
+            AND ( t.table_name like CONCAT('%',#{content},'%') OR t.table_alias like CONCAT('%',#{content},'%') )
+        </if>
+        ORDER BY t.table_name
+    </select>
+
+    <select id="getListByDirId" resultType="com.sinohealth.system.dto.table_manage.DataManageFormDto">
+        select t.* from table_info t where t.dir_id =#{dirId}
+        <if test="menu == 1 or canViewAbnormal == 0">
+        and status = 1
+        </if>
+    </select>
+
+    <select id="getListByDirId1" resultType="com.sinohealth.system.dto.table_manage.DataManageFormDto">
+            select t.* from table_info t where t.dir_id =#{dirId}
+            <if test="username != null  and username != '' and menu = 2">
+                and leader_name = #{username}
+                and status = 1
+            </if>
+    </select>
+    <select id="selectTableInfoByTableName" resultType="com.sinohealth.system.domain.TableInfo">
+        select t.* from table_info t where t.table_name = #{tn}
+    </select>
+    <select id="getTablesWithoutDir" resultType="com.sinohealth.system.dto.table_manage.DataManageFormDto">
+        select t.* from table_info t where t.dir_id = 0 and is_diy = 0
+        <if test="menu == 1">
+        and status = 1
+        </if>
+    </select>
+
+</mapper>

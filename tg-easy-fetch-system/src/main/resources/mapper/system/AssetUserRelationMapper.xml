@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinohealth.system.mapper.AssetUserRelationMapper">
+
+    <select id="collectList" resultType="com.sinohealth.system.vo.CollectListVo">
+        SELECT re.asset_id AS assetId,
+               asset.related_id,
+               asset.asset_name,
+               asset.type AS assetType,
+               asset.asset_description,
+               asset.asset_provider,
+               date_format(re.collect_time,
+                           '%Y-%m-%d %H:%i:%s') AS collectTime, cata.path AS cataloguePath, temp.labelStr
+        FROM tg_asset_user_relation re
+                 LEFT JOIN tg_asset_info asset
+                           ON re.asset_id = asset.id
+                 LEFT JOIN assets_catalogue cata
+                           ON asset.asset_menu_id = cata.id
+                 LEFT JOIN
+             (SELECT lr.asset_id,
+                     group_concat(l.name separator '、') AS labelStr
+              FROM tg_asset_label_relation lr
+                       JOIN tg_label_info l
+                            ON lr.label_id = l.id
+              WHERE lr.del_flag = 0
+                AND l.del_flag = 0
+              GROUP BY  lr.asset_id ) temp
+             ON re.asset_id = temp.asset_id
+        WHERE
+            re.is_collect = 1 and re.user_id = #{userId}
+            <if test="request.assetName != null and request.assetName != ''">
+                and asset.asset_name like concat('%', #{request.assetName}, '%')
+            </if>
+            <if test="request.assetType != null and request.assetType != ''">
+                and asset.type = #{request.assetType}
+            </if>
+        ORDER BY  re.collect_time desc
+    </select>
+
+
+    <select id="hotViewAssets" resultType="com.sinohealth.system.biz.homePage.HotAssetsDTO">
+        <if test="source != null and source != 1">
+            select tgai.id, tgai.asset_name, IFNULL(tmp.count, 0) as count from tg_asset_info tgai left join (
+        </if>
+        select re.asset_id as id, asset.asset_name, sum(re.view_num) as count from tg_asset_burial_point re
+                LEFT JOIN tg_asset_info asset
+                ON re.asset_id = asset.id
+                where asset.id is not null
+                  and asset.shelf_state = '已上架'
+                  and asset.deleted = 0
+                <if test="catalogueIds != null and catalogueIds.size() >0">
+                    and asset.asset_menu_id in
+                    <foreach item='item' index='index' collection='catalogueIds' open='(' separator=',' close=')'>
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="id != null and id != ''">
+                  and re.asset_id = #{id}
+                </if>
+                 and re.burial_date >= #{createdTime}
+        group by re.asset_id order by count
+        <if test="source != null">
+            <choose>
+                <when test="source == 1">
+                    desc
+                </when>
+                <otherwise>
+                    asc, asset.create_time asc
+                    ) tmp on tgai.id = tmp.id
+                    where tgai.id is not null
+                    <if test="catalogueIds != null and catalogueIds.size() >0">
+                        and tgai.asset_menu_id in
+                        <foreach item='item' index='index' collection='catalogueIds' open='(' separator=',' close=')'>
+                            #{item}
+                        </foreach>
+                    </if>
+                    and tgai.shelf_state = '已上架'
+                    and tgai.deleted = 0
+                    order by count
+                    asc, tgai.create_time asc
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+</mapper>
